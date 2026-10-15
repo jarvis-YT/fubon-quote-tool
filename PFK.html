@@ -46,7 +46,7 @@ th.tr2{background:#d1fae5;color:#065f46}td.tr2{background:#f0fdf6;color:#047857;
 <label>提領方式 <select id="wdM"><option value="S">自動算最高每年可領</option><option value="U">自訂每年金額</option><option value="N">只做一次提領</option></select></label>
 <label class="wdY">起領年齡 <input id="wdA" type="number" inputmode="numeric" value="60" style="width:56px"></label>
 <label class="wdY">領到年齡 <input id="wdB" type="number" inputmode="numeric" value="85" style="width:56px"></label>
-<label class="wdS">預留資產(美元) <input id="wdR" type="number" inputmode="decimal" value="0" style="width:96px"></label>
+<label class="wdS">預留資產(台幣萬元) <input id="wdR" type="number" inputmode="decimal" value="0" style="width:72px" placeholder="如 600"></label>
 <label class="wdU">每年提領(美元) <input id="wdW" type="number" inputmode="decimal" value="10000" style="width:96px"></label>
 <label>一次提領：第 <input id="wdLy" type="number" inputmode="numeric" value="" placeholder="年" style="width:44px"> 年末 <input id="wdLa" type="number" inputmode="decimal" value="" placeholder="美元" style="width:96px"></label>
 </div>
@@ -255,14 +255,14 @@ function go(){if($$('wdBody').style.display=='none')return;const M=$$('wdM').val
  $$('wd').querySelector('.wdS').style.display=M=='S'?'':'none';$$('wd').querySelector('.wdU').style.display=M=='U'?'':'none';
  const msg=$$('wdMsg');msg.textContent='';$$('wdSum').innerHTML='';$$('wdTb').innerHTML='';
  const q=base();if(!q){msg.textContent='請先在上方輸入有效的年齡與保額';return;}
- const fx=+$('fx').value||31,A=+$$('wdA').value,B=+$$('wdB').value,R=Math.max(0,+$$('wdR').value||0),ly=+$$('wdLy').value||0,la=+$$('wdLa').value||0;
+ const fx=+$('fx').value||31,A=+$$('wdA').value,B=+$$('wdB').value,R=Math.max(0,+$$('wdR').value||0)*1e4/fx,ly=+$$('wdLy').value||0,la=+$$('wdLa').value||0;
  let amt=0;
  if(M!='N'){if(!(B>=A)){msg.textContent='領到年齡須 ≥ 起領年齡';return;}
   if(A<q.age+q.term){msg.textContent=`繳費期間不提領；最早 ${q.age+q.term} 歲（第${q.term}年末後）起`;}
   if(M=='U')amt=Math.max(0,+$$('wdW').value||0);
   else{const endT=q.rows.find(r=>r.age==B);if(!endT){msg.textContent='領到年齡超過保單年度';return;}
    const ok=a=>{const s=sim(q,plan(q,A,B,a,ly,la));return s.bad==null&&s.out[endT.t-1].X>=R;};
-   let lo=0,hi=q.rows.reduce((s,r)=>Math.max(s,r.X),0);if(!ok(0)){msg.textContent='預留資產過高或一次提領過大，無法達成';return;}
+   let lo=0,hi=q.rows.reduce((s,r)=>Math.max(s,r.X),0);if(!ok(0)){msg.textContent=`無法達成：預留資產 ${fmt(R*fx)} 台幣（${fmt(R)} 美元）高於不提領時 ${B} 歲的解約總額，請降低預留金額或一次提領`;return;}
    for(let i=0;i<60;i++){const mid=(lo+hi)/2;ok(mid)?lo=mid:hi=mid;}amt=Math.floor(lo);}}
  const s=sim(q,plan(q,A,B,amt,ly,la)),o=s.out;if(s.bad)msg.textContent=`第${s.bad}年提領金額超過當年解約總額，已以全部解約計`;
  const pays=[q.p1].concat(Array(q.term-1).fill(q.p2)),tot=pays.reduce((a,b)=>a+b,0);
