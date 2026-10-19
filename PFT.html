@@ -373,18 +373,24 @@ function run(){const tp=document.querySelector('input[name=rsm]:checked').value=
  // solve SA_B (step 0.1萬) so full-term total ≈ T
  const tot=S=>{const r=quote(e.g,e.age,e.term,S,e.sc,e.m1,e.m2);return r?r.rows[r.rows.length-1].cum:NaN;};
  let SB=Math.round(e.S*T/full*10)/10;for(let i=0;i<30;i++){const t0=tot(SB),up=tot(Math.round((SB+0.1)*10)/10),dn=tot(Math.round((SB-0.1)*10)/10);const d=Math.abs(t0-T);if(Math.abs(up-T)<d)SB=Math.round((SB+0.1)*10)/10;else if(Math.abs(dn-T)<d)SB=Math.round((SB-0.1)*10)/10;else break;}
- let warn='';if(SB<e.smin){warn=`同樣總繳需保額 ${SB} 萬，低於最低投保 ${e.smin} 萬，以下改用最低保額 ${e.smin} 萬（總繳會比 A 多）。`;SB=e.smin;}
+ const k=e.k,u=e.u,two=v=>e.usd&&k==1?`${fm(v)} ${u}<br><small>≈ ${fm(v*e.fx)} 台幣</small>`:`${fm(v*k)} ${u}`;
+ const PA=RPU.keys[e.key].PA[N-1],SpA=PA*e.S,cumN=S=>{const r=quote(e.g,e.age,e.term,S,e.sc,e.m1,e.m2);return r?r.rows[N-1].cum:NaN;};
+ if(SB<e.smin||SpA<e.smin*1e4){const minB=tot(e.smin),SAm=Math.ceil(e.smin*1e4/PA*10-1e-9)/10,minA=cumN(Math.max(SAm,e.smin));
+  bx.innerHTML=`<div style="background:#fdecea;border-left:5px solid #c0392b;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.8;font-size:14px">⚠️ <b>保額低於本商品最低投保 ${e.smin} 萬，無法做同樣總繳比較。</b><br>${SpA<e.smin*1e4?`‧A 減額繳清後保額約 ${(SpA/1e4).toFixed(2)} 萬，低於最低 ${e.smin} 萬。<br>`:''}${SB<e.smin?`‧B 繳滿全期需保額 ${SB} 萬，低於最低 ${e.smin} 萬。<br>`:''}‧此年齡／年期最低總繳：B 繳滿全期約 <b>${two(minB)}</b>；A 第 ${N} 年減額繳清（減額後保額 ≥ ${e.smin} 萬）約 <b>${two(minA)}</b>。請提高保額後再比較。</div>`;return;}
+ const warn='';
  const qB=quote(e.g,e.age,e.term,SB,e.sc,e.m1,e.m2);if(!qB){bx.innerHTML='<div class="err">無法以較小保額試算</div>';return;}const B=qB.rows;
- const gA=acc(A),gB=acc(B),tv=(R,g,i)=>R[i].X+g[i],hasP=gA[ymax-1]>0||gB[ymax-1]>0,k=e.k,u=e.u;
- let cx=null,cw=null;const lead=i=>tv(B,gB,i)>tv(A,gA,i);for(let i=N;i<ymax;i++){if(cx==null&&lead(i)){cx=i+1;}if(cw==null&&B[i].W>A[i].W)cw=i+1;}
- const fin=ymax-1,winEnd=lead(fin)?'B 繳滿全期（小保額）':'A 減額繳清';
+ const gA=acc(A),gB=acc(B),tv=(R,g,i)=>R[i].X+g[i],hasP=gA[ymax-1]>0||gB[ymax-1]>0;
  const iA={},iB={},IA=t=>iA[t]!==undefined?iA[t]:(iA[t]=irrCF(A,t)),IB=t=>iB[t]!==undefined?iB[t]:(iB[t]=irrCF(B,t));
- const two=v=>e.usd&&k==1?`${fm(v)} ${u}<br><small>≈ ${fm(v*e.fx)} 台幣</small>`:`${fm(v*k)} ${u}`;
+ let cx=null,cw=null;const lead=i=>tv(B,gB,i)>tv(A,gA,i);for(let i=N;i<ymax;i++){if(cx==null&&lead(i)){cx=i+1;}if(cw==null&&B[i].W>A[i].W)cw=i+1;}
+ let ci=null;for(let i=N;i<ymax;i++){const a=IA(i+1),b=IB(i+1);if(a!=null&&b!=null&&b>a){ci=i+1;break;}}
+ const fin=ymax-1,winEnd=lead(fin)?'B 繳滿全期（小保額）':'A 減額繳清';
+
  let h=`<div style="background:#eef6ff;border-left:5px solid #0b5fa5;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.75;font-size:14px">
  <b><span class="lgR">A 減額繳清</span>：保額 ${e.S} 萬、繳 ${N} 年後減額繳清，總繳 ${two(T)}</b><br>
  <b><span class="lgB">B 繳滿全期</span>：保額 ${SB} 萬、繳滿 ${payN} 年，總繳 ${two(B[ymax-1].cum)}</b><br>
  <small>B 保額以每 0.1 萬為單位、求最接近 A 總繳（差 ${fm((B[ymax-1].cum-T)*k)} ${u}）。${warn}</small><br>
  ‧解約總額＋已領：${cx?`<b>第 ${cx} 年（${e.age+cx-1}歲）起 B 較多</b>，之前 A 較多`:'全期 A 減額繳清較多'}；期滿勝出：<b>${winEnd}</b>。<br>
+ ‧IRR：${ci?`第 ${ci} 年（${e.age+ci-1}歲）起 B 較高（B 較晚繳費，資金時間較短）`:'全期 A 較高'}。<br>
  ‧身故總額：${cw?`第 ${cw} 年（${e.age+cw-1}歲）起 B 較高`:'全期 A 較高'}。</div>`;
  h+=`<div style="margin:6px 0;font-size:13px"><span class="lgR">■ A 減額繳清</span>　<span class="lgB">■ B 繳滿（小保額）</span></div><div class="tw"><table class="rc"><thead><tr><th rowspan="2">年度<br>(年齡)</th><th colspan="2">累計保費</th><th colspan="2">解約總額</th>${hasP?'<th colspan="2">累計已領</th>':''}<th colspan="2">身故總額</th><th colspan="2">含紅利總報酬</th><th colspan="2">領回率</th><th colspan="2">IRR</th></tr><tr>${'<th class="hR">A</th><th class="hB">B</th>'.repeat(hasP?7:6)}</tr></thead><tbody>`;
  const ko=G('rpuKey').checked;
