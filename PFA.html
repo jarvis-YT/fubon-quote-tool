@@ -230,7 +230,57 @@ document.querySelectorAll('input,select').forEach(e=>{if(!e.id.startsWith('rpu')
 ['bU','bT'].forEach(i=>$(i)&&$(i).addEventListener('click',hook));window.addEventListener('resize',()=>{});
 render();
 })();
-</script><!--/RPU--><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+</script><!--/RPU--><!--RPUSAME--><script>/* 同樣總繳 compare mode for 減額繳清 card. Needs RPU, RPU_project, quote(), $ and either (C,keyOf) [t2] or (M,ENG) [gen]. */
+(function(){
+if(!window.RPU_project||!document.getElementById('rpuVs'))return;
+const G=t=>document.getElementById(t),GEN=typeof M!='undefined'&&typeof ENG!='undefined';
+const fm=n=>n==null||!isFinite(n)?'':Math.round(n).toLocaleString('en-US'),pq=x=>(x==null||!isFinite(x))?'—':(x*100).toFixed(2)+'%';
+const box=G('rpuVs').closest('.grid');
+box.insertAdjacentHTML('beforebegin',`<div id="rsMode" style="display:flex;gap:6px;margin:4px 0 8px;font-size:14px"><label style="margin:0"><input type="radio" name="rsm" value="sa" checked> 同保額比較</label><label style="margin:0"><input type="radio" name="rsm" value="tp"> 同樣總繳比較</label></div>`);
+G('rpuCmp').insertAdjacentHTML('afterend','<div id="rsBox" style="display:none"></div>');
+function irrCF(rows,t){const f=x=>{let s=0;for(let j=0;j<t;j++){const r=rows[j];s-=(r.py||0)*Math.pow(1+x,t-j);s+=((r.surv||0)+(r.cash||0))*Math.pow(1+x,t-1-j);}return s+rows[t-1].X;};
+ let lo=-0.99,hi=1;if(!(f(lo)*f(hi)<0))return null;for(let i=0;i<70;i++){const m=(lo+hi)/2;f(m)>0?lo=m:hi=m;}return (lo+hi)/2;}
+function env(){const g=+$('g').value,age=+$('age').value,term=+$('term').value,m1=$('m1').value,m2=$('m2').value,fx=+$('fx').value,cur=$('cur').value;
+ let sc=+$('sc').value,key,smin,smax,k,u;
+ if(GEN){if(M.isr&&$('sc').value=='c')sc=+$('dc').value/100;key=ENG.key(M,g,age,term);const ft=M.faceTable&&M.faceTable[term];smin=(ft&&ft[1])||M.smin;smax=(ft&&ft[2])||M.smax;if(M.maxf&&M.maxf[age]!=null)smax=Math.min(smax,M.maxf[age]);k=(cur=='TWD'&&CUR!='TWD')?fx:1;u=(cur=='TWD'||CUR=='TWD')?'台幣':CN;}
+ else{key=keyOf(g,age,term);smin=C.smin;smax=C.maxf?C.maxf[age]:C.smax;k=cur=='TWD'?fx:1;u=cur=='TWD'?'台幣':'美元';}
+ let S=+$('amt').value;if($('mode').value=='P')S=Math.floor(+$('amt').value/D.GP[key]*10)/10;
+ const usd=GEN?CUR!='TWD':true;return {g,age,term,m1,m2,fx,sc,key,smin,smax,k,u,S,usd};}
+const acc=A=>{let a=0;return A.map(r=>(a+=(r.surv||0)+(r.cash||0),a));};
+function run(){const tp=document.querySelector('input[name=rsm]:checked').value=='tp';box.style.display=tp?'none':'';G('rpuCmp').style.display=tp?'none':'';const bx=G('rsBox');bx.style.display=tp?'':'none';
+ if(!tp||G('rpuIn').style.display=='none'||G('rpuBody').style.display=='none'||G('rpuFull')&&G('rpuFull').style.display=='none')return;
+ const N=+G('rpuN').value;if(!N)return;const e=env();
+ const q=quote(e.g,e.age,e.term,e.S,e.sc,e.m1,e.m2);if(!q)return;const ymax=q.rows.length;
+ const A=RPU_project(e.key,e.S,e.term,e.sc,q.p1,q.p2,N,ymax,e.age).rows;A.forEach((r,i)=>{r.age=q.rows[i].age;if(!GEN){r.surv=0;r.cash=0;}});
+ const T=A[ymax-1].cum,payN=q.rows.filter(r=>r.py).length,full=q.rows[ymax-1].cum;
+ // solve SA_B (step 0.1萬) so full-term total ≈ T
+ const tot=S=>{const r=quote(e.g,e.age,e.term,S,e.sc,e.m1,e.m2);return r?r.rows[r.rows.length-1].cum:NaN;};
+ let SB=Math.round(e.S*T/full*10)/10;for(let i=0;i<30;i++){const t0=tot(SB),up=tot(Math.round((SB+0.1)*10)/10),dn=tot(Math.round((SB-0.1)*10)/10);const d=Math.abs(t0-T);if(Math.abs(up-T)<d)SB=Math.round((SB+0.1)*10)/10;else if(Math.abs(dn-T)<d)SB=Math.round((SB-0.1)*10)/10;else break;}
+ let warn='';if(SB<e.smin){warn=`同樣總繳需保額 ${SB} 萬，低於最低投保 ${e.smin} 萬，以下改用最低保額 ${e.smin} 萬（總繳會比 A 多）。`;SB=e.smin;}
+ const qB=quote(e.g,e.age,e.term,SB,e.sc,e.m1,e.m2);if(!qB){bx.innerHTML='<div class="err">無法以較小保額試算</div>';return;}const B=qB.rows;
+ const gA=acc(A),gB=acc(B),tv=(R,g,i)=>R[i].X+g[i],hasP=gA[ymax-1]>0||gB[ymax-1]>0,k=e.k,u=e.u;
+ let cx=null,cw=null;const lead=i=>tv(B,gB,i)>tv(A,gA,i);for(let i=N;i<ymax;i++){if(cx==null&&lead(i)){cx=i+1;}if(cw==null&&B[i].W>A[i].W)cw=i+1;}
+ const fin=ymax-1,winEnd=lead(fin)?'B 繳滿全期（小保額）':'A 減額繳清';
+ const iA={},iB={},IA=t=>iA[t]!==undefined?iA[t]:(iA[t]=irrCF(A,t)),IB=t=>iB[t]!==undefined?iB[t]:(iB[t]=irrCF(B,t));
+ const two=v=>e.usd&&k==1?`${fm(v)} ${u}<br><small>≈ ${fm(v*e.fx)} 台幣</small>`:`${fm(v*k)} ${u}`;
+ let h=`<div style="background:#eef6ff;border-left:5px solid #0b5fa5;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.75;font-size:14px">
+ <b><span class="lgR">A 減額繳清</span>：保額 ${e.S} 萬、繳 ${N} 年後減額繳清，總繳 ${two(T)}</b><br>
+ <b><span class="lgB">B 繳滿全期</span>：保額 ${SB} 萬、繳滿 ${payN} 年，總繳 ${two(B[ymax-1].cum)}</b><br>
+ <small>B 保額以每 0.1 萬為單位、求最接近 A 總繳（差 ${fm((B[ymax-1].cum-T)*k)} ${u}）。${warn}</small><br>
+ ‧解約總額＋已領：${cx?`<b>第 ${cx} 年（${e.age+cx-1}歲）起 B 較多</b>，之前 A 較多`:'全期 A 減額繳清較多'}；期滿勝出：<b>${winEnd}</b>。<br>
+ ‧身故總額：${cw?`第 ${cw} 年（${e.age+cw-1}歲）起 B 較高`:'全期 A 較高'}。</div>`;
+ h+=`<div style="margin:6px 0;font-size:13px"><span class="lgR">■ A 減額繳清</span>　<span class="lgB">■ B 繳滿（小保額）</span></div><div class="tw"><table class="rc"><thead><tr><th rowspan="2">年度<br>(年齡)</th><th colspan="2">累計保費</th><th colspan="2">解約總額</th>${hasP?'<th colspan="2">累計已領</th>':''}<th colspan="2">身故總額</th><th colspan="2">含紅利總報酬</th><th colspan="2">領回率</th><th colspan="2">IRR</th></tr><tr>${'<th class="hR">A</th><th class="hB">B</th>'.repeat(hasP?7:6)}</tr></thead><tbody>`;
+ const ko=G('rpuKey').checked;
+ for(let i=0;i<ymax;i++){const t=i+1,a=e.age+t-1,mk=t==cx||t==cw||t==N;if(ko&&!(t<=N+12||t%5==0||a%10==0||mk||t==ymax))continue;
+  const ra=tv(A,gA,i)/A[i].cum,rb=tv(B,gB,i)/B[i].cum,wa=tv(A,gA,i)>=tv(B,gB,i);
+  h+=`<tr class="${mk?'hl':''}"><td>${t} (${a})${t==cx?'<br><small>B反超</small>':''}${t==N?'<br><small>A辦理</small>':''}</td><td class="cR">${fm(A[i].cum*k)}</td><td class="cB">${fm(B[i].cum*k)}</td><td class="cR">${fm(A[i].X*k)}</td><td class="cB">${fm(B[i].X*k)}</td>${hasP?`<td class="cR">${fm(gA[i]*k)}</td><td class="cB">${fm(gB[i]*k)}</td>`:''}<td class="cR">${fm(A[i].W*k)}</td><td class="cB">${fm(B[i].W*k)}</td><td class="cR" style="${wa?'font-weight:700':''}">${fm((tv(A,gA,i)-A[i].cum)*k)}</td><td class="cB" style="${wa?'':'font-weight:700'}">${fm((tv(B,gB,i)-B[i].cum)*k)}</td><td class="cR">${pq(ra)}</td><td class="cB">${pq(rb)}</td><td class="cR">${pq(IA(t))}</td><td class="cB">${pq(IB(t))}</td></tr>`;}
+ h+=`</tbody></table></div><div style="font-size:12px;color:#666;margin-top:6px;line-height:1.7">‧含紅利總報酬＝解約總額＋累計已領−累計保費；領回率＝(解約總額＋累計已領)÷累計保費。A 辦理後數字為概算（同上方減額繳清試算）；B 為本站一般試算於保額 ${SB} 萬之結果。<br>‧${GEN&&M.isr?'宣告利率非保證，可能調降；':''}紅利非保證，可能調降甚至為零，數字依上方所選情境。台幣僅以自訂匯率換算參考。正式內容以富邦人壽建議書為準。</div>`;
+ bx.innerHTML=h;}
+let tm=null;const deb=()=>{clearTimeout(tm);tm=setTimeout(run,220);};
+document.addEventListener('input',deb);document.addEventListener('change',deb);document.addEventListener('click',ev=>{if(ev.target&&(ev.target.id=='rpuOpen'||ev.target.id=='bU'||ev.target.id=='bT'))deb();});
+window.RS_run=run;
+})();
+</script><!--/RPUSAME--><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
 navigator.serviceWorker.register('sw.js').catch(function(){});
 navigator.serviceWorker.addEventListener('message',function(ev){if(!ev.data||ev.data.type!=='qt-updated'||document.getElementById('qtupd'))return;
 var b=document.createElement('div');b.id='qtupd';b.textContent='🔄 網站資料已更新，點此重新整理以顯示最新數字';
