@@ -286,12 +286,7 @@ let tm=null;const deb=()=>{clearTimeout(tm);tm=setTimeout(run,220);};
 document.addEventListener('input',deb);document.addEventListener('change',deb);document.addEventListener('click',ev=>{if(ev.target&&(ev.target.id=='rpuOpen'||ev.target.id=='bU'||ev.target.id=='bT'))deb();});
 window.RS_run=run;
 })();
-</script><!--/RPUSAME--><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
-navigator.serviceWorker.register('sw.js').catch(function(){});
-navigator.serviceWorker.addEventListener('message',function(ev){if(!ev.data||ev.data.type!=='qt-updated'||document.getElementById('qtupd'))return;
-var b=document.createElement('div');b.id='qtupd';b.textContent='🔄 網站資料已更新，點此重新整理以顯示最新數字';
-b.style.cssText='position:fixed;left:8px;right:8px;bottom:12px;z-index:9999;background:#c0392b;color:#fff;padding:12px 14px;border-radius:12px;font-size:15px;font-weight:bold;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer';
-b.onclick=function(){location.reload();};document.body.appendChild(b);});})();</script><script>/*WDRAWJS*/(function(){
+</script><!--/RPUSAME--><script>/*WDRAWJS*/(function(){
 const $$=i=>document.getElementById(i);let tm=null;
 function base(){const g=+$('g').value,age=+$('age').value,term=+$('term').value,sc=+$('sc').value,m1=$('m1').value,m2=$('m2').value;
  const ag=C.ages[term];if(!ag||!(Number.isInteger(age)&&age>=ag[0]&&age<=ag[1]))return null;
@@ -330,4 +325,9 @@ function go(){if($$('wdBody').style.display=='none')return;const M=$$('wdM').val
  $$('wdTb').innerHTML=h+`<tr><td colspan="8" style="font-size:11px;color:#888">美元為主，灰字為台幣（匯率 ${fx}）；只列提領年度、前10年及每5年</td></tr>`;}
 function deb(){clearTimeout(tm);tm=setTimeout(go,200);}
 document.addEventListener('input',deb);document.addEventListener('change',deb);window.WD_go=go;window.WD_sim=sim;window.WD_plan=plan;window.WD_base=base;
-$$('wdBtn').onclick=function(){const b=$$('wdBody'),o=b.style.display=='none';b.style.display=o?'':'none';this.textContent=o?'💵 收合部分提領試算 ▴':'💵 試算部分提領（存完分年提領・估算）▾';if(o)go();};})();</script><!--CFWA--><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1f1171fedb8a47c1b04731b056bc8142"}'></script><!--/CFWA--></body></html>
+$$('wdBtn').onclick=function(){const b=$$('wdBody'),o=b.style.display=='none';b.style.display=o?'':'none';this.textContent=o?'💵 收合部分提領試算 ▴':'💵 試算部分提領（存完分年提領・估算）▾';if(o)go();};})();</script><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+navigator.serviceWorker.register('sw.js').catch(function(){});
+navigator.serviceWorker.addEventListener('message',function(ev){if(!ev.data||ev.data.type!=='qt-updated'||document.getElementById('qtupd'))return;
+var b=document.createElement('div');b.id='qtupd';b.textContent='🔄 網站資料已更新，點此重新整理以顯示最新數字';
+b.style.cssText='position:fixed;left:8px;right:8px;bottom:12px;z-index:9999;background:#c0392b;color:#fff;padding:12px 14px;border-radius:12px;font-size:15px;font-weight:bold;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer';
+b.onclick=function(){location.reload();};document.body.appendChild(b);});})();</script><!--CFWA--><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1f1171fedb8a47c1b04731b056bc8142"}'></script><!--/CFWA--></body></html>
