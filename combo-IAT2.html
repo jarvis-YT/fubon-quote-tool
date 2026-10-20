@@ -16,7 +16,7 @@ td.ok{font-size:12px;color:#1e8449;text-align:left}tr.first td{outline:2px solid
 .err{color:#c00;font-weight:bold}.note{font-size:12px;color:#666;line-height:1.7}.row{display:flex;align-items:center;gap:8px;font-size:14px}.row input{width:22px;height:22px}
 @media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.hcards{grid-template-columns:1fr 1fr}.hc b{font-size:18px}header h1{font-size:17px}}
 </style></head><body><header><a href="home.html">← 商品選單</a><h1>IAT2 階梯組合（6／10／20 年期同時投保）</h1><small>新吉好利利率變動型增額終身壽險：三種繳費年期各投保一張，前期繳費較高、6 年期先繳完先回本，之後可運用資金逐步增加</small></header>
-<div id="trust" style="background:#eaf2fb;color:#0b5fa5;font-size:12px;text-align:center;padding:4px 8px">✔ 依富邦官方建議書 V1.9-1150101 逐年核對・預設宣告利率 2.30%（115/10 官網）・回饋金非保證</div>
+<div id="trust" style="background:#eaf2fb;color:#0b5fa5;font-size:12px;text-align:center;padding:4px 8px">✔ 依富邦官方建議書 V1.9-1150101 逐年核對・預設宣告利率 2.30%（115/10 官網）</div>
 <div class="wrap">
 <div class="card" id="togc" style="display:none"><div class="grid"><div class="seg" style="grid-column:span 2"><button id="bU" class="on">美元 USD</button><button id="bT">台幣 TWD</button></div><div><label>匯率 USD→TWD</label><input id="fx" type="number" inputmode="decimal" value="31" step="0.01"></div></div></div>
 <div class="card"><div class="grid">
@@ -34,7 +34,7 @@ td.ok{font-size:12px;color:#1e8449;text-align:left}tr.first td{outline:2px solid
 <div class="card note">
 ‧<b>可運用資金</b>＝當年度「已回本」保單的解約總額合計；已回本＝該張解約總額＋該張累計領回 ≥ 該張累計實繳保費。尚未回本的保單不列入（建議繼續持有）。解約會終止該張保單的保障，部分解約／保單借款請依條款與公司規定辦理。<br>
 ‧身故保障合計、解約總額合計＝各張商品頁同條件數字相加（同一套試算引擎，已與建議書逐年核對）。累積總報酬率＝（解約總額合計＋累計領回）÷ 累計實繳保費 − 1。IRR：保費年初繳、生存金年末領、該年度末全部解約之年化內部報酬率。負值不顯示。<br>
-‧利率變動型：回饋分享金依宣告利率 − 預定利率試算，宣告利率每月變動、非保證。 未含員工／集彙折扣。實際以公司正式建議書為準；組合中每張保單須分別投保、分別核保。
+‧利率變動型：回饋分享金依宣告利率 − 預定利率試算，宣告利率每月變動。 未含員工／集彙折扣。實際以公司正式建議書為準；組合中每張保單須分別投保、分別核保。
 </div></div>
 <script>// Generic Fubon participating engine (mirrors engine.py, verified vs workbooks)
 const IIF=(c,a,b)=>c?a:(b===undefined?false:b),AND=(...a)=>a.every(Boolean),OR=(...a)=>a.some(Boolean),NN=x=>typeof x=='number'?x:0,RND=(x,d)=>Math.round(x*10**d)/10**d;
@@ -137,7 +137,7 @@ $('legs').innerHTML=C.legs.map((L,i)=>{const M=DS[L.c].meta;return `<div class="
 function setModes(){const g=+$('g').value,age=+$('age').value,L=C.legs[0],M=DS[L.c].meta,D=DS[L.c].data,k=ENG.key(M,g,age,+$('t0').value);const ms=D.GP[k]?ENG.modes(M,D,k):(ISR?(M.isrModes||['PUA']):['PUA']);const was=$('dm').value;
  $('dm').innerHTML=ms.map(m=>`<option value="${m}">${MN[m]}</option>`).join('');$('dm').value=ms.includes(was)?was:(ms.includes('PUA')?'PUA':ms[0]);$('dm').disabled=ms.length==1;
  const dm=$('dm').value;if(ISR){const JA=M.p4a??16,P4=Math.max(JA-age,M.p4m??6);$('dmnote').innerHTML=dm=='PUA'?'增值回饋分享金：全期購買增額繳清保險金額。':`增值回饋分享金：<b>第 1–${P4} 年只能購買增額繳清</b>（依建議書），第 ${P4+1} 年起依所選「${MN[dm]}」。`;}
- else $('dmnote').innerHTML=ms.length==1?'本商品條款限定：年度保單紅利只能購買增額繳清保險金額（起領前不發現金紅利；紅利增加的保額讓起領後生存保險金一起變多，非保證）。':'';}
+ else $('dmnote').innerHTML=ms.length==1?'本商品條款限定：年度保單紅利只能購買增額繳清保險金額（起領前不發現金紅利；紅利增加的保額讓起領後生存保險金一起變多）。':'';}
 function legQ(i,g,age,sc,dm,m1,m2){const L=C.legs[i],M=DS[L.c].meta,D=DS[L.c].data,t=+$('t'+i).value,S=+$('s'+i).value;if(!S)return {skip:true};
  const [a0,a1]=M.terms[t]||[0,-1];if(!(age>=a0&&age<=a1))return {err:`${L.c} ${TN(M,t)} 投保年齡須為 ${a0}~${a1} 歲`};
  const ft=M.faceTable&&M.faceTable[t];let smin=(ft&&ft[1])||M.smin,smax=(ft&&ft[2])||M.smax;if(M.maxf&&M.maxf[age]!=null)smax=Math.min(smax,M.maxf[age]);

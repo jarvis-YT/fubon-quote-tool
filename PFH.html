@@ -27,7 +27,7 @@ canvas{width:100%;height:260px;display:block}
 @media(max-width:600px){.grid{grid-template-columns:1fr 1fr}header h1{font-size:17px}.sum{grid-template-columns:1fr 1fr}canvas{height:220px}}
 /*LBL*/.bx{display:none}table.nocash .ccol{display:none}table.sbx .bx{display:table-cell}table.sbx .bx.na{display:none}th.bx,td.bx{background:#f3f0fa;color:#4a3b78}.fxn{font-size:11px;color:#666;display:block;margin-top:3px}.chip{font-size:13px;background:#eef6ee;border-left:4px solid #1e8449;padding:8px 10px;line-height:1.6;margin-bottom:8px}.lg{font-size:12px;color:#4a3b78;margin:0 0 6px}
 </style></head><body>
-<header><a href="home.html">← 商品選單</a><h1>富邦人壽美紅大吉外幣分紅終身壽險（PFH，美元）快速報價</h1><small>費率／保價金／身故／紅利資料取自建議書 V2.4-1150630；僅供內部試算，以公司正式建議書為準</small></header><div id="trust" style="background:#eaf2fb;color:#0b5fa5;font-size:12px;text-align:center;padding:4px 8px">✔ 依富邦官方建議書 V2.4-1150630 逐年核對・紅利假設：最可能 5.50%／較低 3.00%（非保證）</div>
+<header><a href="home.html">← 商品選單</a><h1>富邦人壽美紅大吉外幣分紅終身壽險（PFH，美元）快速報價</h1><small>費率／保價金／身故／紅利資料取自建議書 V2.4-1150630；僅供內部試算，以公司正式建議書為準</small></header><div id="trust" style="background:#eaf2fb;color:#0b5fa5;font-size:12px;text-align:center;padding:4px 8px">✔ 依富邦官方建議書 V2.4-1150630 逐年核對・紅利假設：最可能 5.50%／較低 3.00%</div>
 <div class="wrap">
 <div class="card pay" id="payc"><div class="hl1" id="payh"></div><div class="big" id="payb"></div><div class="pm" id="paym"></div><canvas id="pch"></canvas></div>
 <div class="card tog" id="togc"><div class="seg"><button id="bU" class="on">美元 USD</button><button id="bT">台幣 TWD</button></div><div class="fxw"><label>匯率 USD→TWD</label><input id="fx2" type="number" inputmode="decimal" value="31" step="0.01"><small class="fxn">台幣僅依自訂匯率換算（建議書為外幣）</small></div><input type="hidden" id="cur" value="USD"></div>
@@ -45,11 +45,11 @@ canvas{width:100%;height:260px;display:block}
 <div class="card"><div id="msg" class="err"></div><div class="hcards" id="hc"></div><div class="sum" id="sum"></div></div>
 <div class="card"><canvas id="ch"></canvas></div>
 <div class="card"><div class="chip" id="cond"></div><div class="row"><input type="checkbox" id="keyonly"><label for="keyonly" style="margin:0">只顯示重點年度（1~10、15、20、25、30…及每10歲）</label></div><div class="row" id="bxr"><input type="checkbox" id="bxon"><label for="bxon" style="margin:0" id="bxl">展開解約總額明細</label></div><p class="lg" id="bxlg"></p>
-<div class="tw"><table id="tbl"><thead><tr><th>年度<br>(年齡)</th><th>年度保費</th><th>累計保費</th><th class="cd">身故/完全<br>失能總額</th><th id="thX">解約總額</th><th class="bx" id="thB">B 解約金<br><small>保證</small></th><th class="bx" id="thE">E 終期紅利<br><small>解約</small></th><th class="bx" id="thY">Y 增額繳清<br><small>解約金</small></th><th class="bx" id="thC">C</th><th>當年紅利</th><th id="thS" style="display:none">生存保險金<br><small>（保證）</small></th><th class="ccol">現金紅利<br><small>領回（非保證）</small></th><th>累計領回</th><th class="pr" id="thR" style="display:none">⭐ 每年領回率<br><small>含紅利</small></th><th>壽險<br>倍數</th><th>每年增值</th><th class="cg">年增率</th><th class="tr2">⭐ 總報酬率<br><small>含紅利・解約＋已領</small></th><th id="thI">IRR</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<div class="tw"><table id="tbl"><thead><tr><th>年度<br>(年齡)</th><th>年度保費</th><th>累計保費</th><th class="cd">身故/完全<br>失能總額</th><th id="thX">解約總額</th><th class="bx" id="thB">B 解約金<br><small>保證</small></th><th class="bx" id="thE">E 終期紅利<br><small>解約</small></th><th class="bx" id="thY">Y 增額繳清<br><small>解約金</small></th><th class="bx" id="thC">C</th><th>當年紅利</th><th id="thS" style="display:none">生存保險金<br><small>（保證）</small></th><th class="ccol">現金紅利<br><small>領回</small></th><th>累計領回</th><th class="pr" id="thR" style="display:none">⭐ 每年領回率<br><small>含紅利</small></th><th>壽險<br>倍數</th><th>每年增值</th><th class="cg">年增率</th><th class="tr2">⭐ 總報酬率<br><small>含紅利・解約＋已領</small></th><th id="thI">IRR</th></tr></thead><tbody id="tb"></tbody></table></div></div>
 <div class="card note">
 ‧身故總額 = 基本身故保障 + 紅利累積（增額繳清保額之身故保障／儲存生息累積／當年現金紅利）+ 終期紅利(身故)；解約總額 = 解約金(B) + 終期紅利－解約(E) + 增額繳清之解約金(Y) + 儲存生息累積／當年現金紅利(C)，與建議書「年度末解約時可領總金額」相同。生存金與現金給付之紅利列為「領回」，計入解約總報酬率及 IRR（年末領回）。<br>
 ‧壽險倍數 = 身故總額 ÷ 累計實繳保費。每年增值 = 本年解約總額 − 上年（%為除以上年）。解約總報酬率 =（解約總額＋累計領回）÷ 累計實繳保費 − 1。IRR：保費年初繳、解約總額年末領之年化內部報酬率（生存金／現金紅利於年末領回；年複利）。增值%、報酬率、IRR 為負值時不顯示。<br>
-‧保費 = 每萬費率 × 保額(萬)，高保額／繳費方式折扣依建議書公式自動計算； 未含員工/集彙折扣。紅利非保證，僅依建議書內建情境試算。台幣金額 = 外幣 × 自訂匯率，僅供參考。
+‧保費 = 每萬費率 × 保額(萬)，高保額／繳費方式折扣依建議書公式自動計算； 未含員工/集彙折扣。紅利依建議書內建情境試算。台幣金額 = 外幣 × 自訂匯率，僅供參考。
 </div></div>
 <script>// Generic Fubon participating engine (mirrors engine.py, verified vs workbooks)
 const IIF=(c,a,b)=>c?a:(b===undefined?false:b),AND=(...a)=>a.every(Boolean),OR=(...a)=>a.some(Boolean),NN=x=>typeof x=='number'?x:0,RND=(x,d)=>Math.round(x*10**d)/10**d;
@@ -151,7 +151,7 @@ const SRV=!!M.srv;if(SRV){$('thR').style.display='';$('thS').style.display='';$(
 let BX={E:0,Y:0,C:0};
 function labels(){const dm=$('dm').value,hasB=!!(D.BONU&&Object.keys(D.BONU).length),isr=!!M.isr,
   E=hasB&&!isr&&!!(D.BONUCV&&Object.keys(D.BONUCV).length),Y=(hasB||isr)&&(dm=='PUA'||dm=='PS'||dm=='PC'),C=(hasB||isr)&&dm!='PUA',cl=(dm=='SAVE'||dm=='PS')?'儲存生息累積':'當年現金紅利';
-  if($('thS'))$('thS').innerHTML=((dm=='PUA'&&hasB)||(isr&&Y))?'生存保險金<br><small>（含紅利增額，增額非保證）</small>':'生存保險金<br><small>（保證）</small>';
+  if($('thS'))$('thS').innerHTML=((dm=='PUA'&&hasB)||(isr&&Y))?'生存保險金<br><small>（含紅利增額）</small>':'生存保險金<br><small>（保證）</small>';
   if(isr){const age=+$('age').value,JA=M.p4a??16,P4=dm=='PUA'?0:Math.max(JA-age,M.p4m??6),term=+$('term').value,lump=term==1&&M.payYears!='age';let nt='';
     const opts=(M.isrModes||[]).map(x=>({PUA:'購買增額繳清',PS:'儲存生息',PC:'現金給付'})[x]).join('／');
     if(dm=='PUA')nt='全期購買增額繳清保險金額。';
@@ -165,7 +165,7 @@ function labels(){const dm=$('dm').value,hasB=!!(D.BONU&&Object.keys(D.BONU).len
   $('thX').innerHTML=L.length>1?`解約總額<br><small>（${L.join('+')}）</small>`:'解約金<br><small>（B）</small>';
   $('bxr').style.display=L.length>1?'':'none';$('bxlg').style.display=L.length>1?'':'none';$('bxl').textContent=`展開解約總額明細（${L.join('／')}）`;
   ['E','Y','C'].forEach(x=>$('th'+x).classList.toggle('na',!BX[x]));$('thC').innerHTML=`C ${cl.replace('累積','<br><small>累積</small>').replace('當年','<small>當年</small><br>')}`;
-  $('bxlg').textContent='B＝年度末解約金（保證）'+(E?'；E＝終期保單紅利－解約（預估）':'')+(Y?`；Y＝${isr?'回饋分享金':'紅利'}購買之增額繳清保險金額解約金（${isr?'非保證':'預估'}）`:'')+(C?`；C＝${cl}`:'')+'。合計＝建議書「年度末解約時可領總金額」。';
+  $('bxlg').textContent='B＝年度末解約金（保證）'+(E?'；E＝終期保單紅利－解約（預估）':'')+(Y?`；Y＝${isr?'回饋分享金':'紅利'}購買之增額繳清保險金額解約金（預估）`:'')+(C?`；C＝${cl}`:'')+'。合計＝建議書「年度末解約時可領總金額」。';
   $('tbl').classList.toggle('sbx',$('bxon').checked);
   const dv=hasB||isr?`｜${isr?'增值回饋分享金':'年度保單紅利'}給付方式 <b>${MN[dm]}</b>（可於上方切換）`:'｜保證給付（無紅利／回饋金）';
   $('cond').innerHTML=`本頁試算條件：繳別 <b>年繳</b>${dv}｜IRR 現金流：<b>保費年初繳、解約總額年末領</b>（${SRV?'生存金／現金紅利年末領回；':''}年複利）<br><small>建議書若選不同給付方式或半年／季／月繳，數字會不同；對照時請選相同條件。</small>`;}
@@ -186,7 +186,7 @@ function run(){
     const inc=prev==null?null:r.X-prev, incp=prev?inc/prev:null;
     const hl=r.t<=10||r.t%5==0||r.age%10==0; prev=r.X; xs.push(r.X*k);ws.push(r.W*k);cs.push(r.cum*k);
     if(ko&&!hl) continue;
-    h+=`<tr class="${(r.t%5==0||r.age%10==0)?'hl':''}"><td>${r.t} (${r.age})</td><td>${fmt(r.py*k)}</td><td>${fmt(r.cum*k)}</td><td class="cd">${fmt(r.W*k)}</td><td>${fmt(r.X*k)}</td><td class="bx">${fmt(r.b*k)}</td><td class="bx${BX.E?'':' na'}">${fmt(r.e*k)}</td><td class="bx${BX.Y?'':' na'}">${fmt(r.y*k)}</td><td class="bx${BX.C?'':' na'}">${fmt(r.c*k)}</td><td>${fmt(r.K*k)}</td>${SRV?`<td>${r.surv?fmt(r.surv*k):'<span style="color:#bbb">—</span>'}</td>`:''}<td class="ccol">${r.cash?fmt(r.cash*k):'0'}</td><td>${fmt(r.got*k)}</td>${PRC?`<td class="pr">${(r.surv+r.cash)?`<b>${((r.surv+r.cash)/tot*100).toFixed(2)}%</b>${r.surv&&r.cash?`<br><small>生存金 ${(r.surv/tot*100).toFixed(2)}%＋${DL} ${(r.cash/tot*100).toFixed(2)}%</small>`:(r.cash?`<br><small>${DL}（非保證）</small>`:'')}`:''}</td>`:''}<td>${(r.W/r.cum).toFixed(2)}</td><td>${fmt(inc==null?null:inc*k)}</td><td class="cg">${pp(incp)}</td><td class="tr2">${pp((r.X+r.got-(r.cash||0))/r.cum-1)}</td><td>${pp(ENG.irr(q.rows,r.t))}</td></tr>`;
+    h+=`<tr class="${(r.t%5==0||r.age%10==0)?'hl':''}"><td>${r.t} (${r.age})</td><td>${fmt(r.py*k)}</td><td>${fmt(r.cum*k)}</td><td class="cd">${fmt(r.W*k)}</td><td>${fmt(r.X*k)}</td><td class="bx">${fmt(r.b*k)}</td><td class="bx${BX.E?'':' na'}">${fmt(r.e*k)}</td><td class="bx${BX.Y?'':' na'}">${fmt(r.y*k)}</td><td class="bx${BX.C?'':' na'}">${fmt(r.c*k)}</td><td>${fmt(r.K*k)}</td>${SRV?`<td>${r.surv?fmt(r.surv*k):'<span style="color:#bbb">—</span>'}</td>`:''}<td class="ccol">${r.cash?fmt(r.cash*k):'0'}</td><td>${fmt(r.got*k)}</td>${PRC?`<td class="pr">${(r.surv+r.cash)?`<b>${((r.surv+r.cash)/tot*100).toFixed(2)}%</b>${r.surv&&r.cash?`<br><small>生存金 ${(r.surv/tot*100).toFixed(2)}%＋${DL} ${(r.cash/tot*100).toFixed(2)}%</small>`:(r.cash?`<br><small>${DL}</small>`:'')}`:''}</td>`:''}<td>${(r.W/r.cum).toFixed(2)}</td><td>${fmt(inc==null?null:inc*k)}</td><td class="cg">${pp(incp)}</td><td class="tr2">${pp((r.X+r.got-(r.cash||0))/r.cum-1)}</td><td>${pp(ENG.irr(q.rows,r.t))}</td></tr>`;
   }
   $('tb').innerHTML=h;
   if(SRV)payout(q.rows,tot,fx,u,k);
@@ -299,7 +299,7 @@ function ui(){
   ‧減額繳清保額取自建議書 PDATA「減額繳清保額表」，並與建議書「年度末減額繳清保險金額」欄核對一致。<br>
 ${RPU.saOnly?'':`  ‧<b>＊</b>：辦理後、原繳費期間內，原契約解約金仍低於保單價值準備金的年度（好解說以「濃縮」表示），此處照樣列出數字，以減額繳清保額 × 建議書「增額繳清保險」每萬元保價／身故因子推估；實際以富邦人壽核算為準。<br>
   ‧表格欄位與上方主表相同（含「展開解約總額明細」B／E／Y／C 設定）；最後一欄另列繳清保額（減額＋增額）。<br>
-  ‧辦理後：減額繳清保額比照建議書「增額繳清保險」之每萬元身故、保價、${M.isr?'回饋金（依宣告利率−預定利率×繳清保價）':'紅利'}${D.SRV?'及生存金':''}因子推估；原已累積之增額繳清保險金額保留並續領${M.isr?'回饋金':'紅利'}；${M.isr?'回饋金給付方式依上方設定（購買增額／儲存生息／現金給付）；宣告利率非保證；':''}終期紅利${D.SRV?'、生存金':''}按減額後保額比例估算。此部分建議書未提供，屬<b>概算</b>，實際以富邦人壽核算為準。保單借款、欠繳或墊繳保費須另行扣除。本試算假設於保單週年日辦理。`}</div></div></div>`;
+  ‧辦理後：減額繳清保額比照建議書「增額繳清保險」之每萬元身故、保價、${M.isr?'回饋金（依宣告利率−預定利率×繳清保價）':'紅利'}${D.SRV?'及生存金':''}因子推估；原已累積之增額繳清保險金額保留並續領${M.isr?'回饋金':'紅利'}；${M.isr?'回饋金給付方式依上方設定（購買增額／儲存生息／現金給付）；':''}終期紅利${D.SRV?'、生存金':''}按減額後保額比例估算。此部分建議書未提供，屬<b>概算</b>，實際以富邦人壽核算為準。保單借款、欠繳或墊繳保費須另行扣除。本試算假設於保單週年日辦理。`}</div></div></div>`;
   note.parentNode.insertBefore(c,note);
   $('rpuOpen').addEventListener('click',()=>{const o=$('rpuIn').style.display=='none';$('rpuIn').style.display=o?'':'none';$('rpuOpen').textContent=o?'－ 收合減額繳清試算':'＋ 我要試算減額繳清';render();});
   $('rpuN').addEventListener('change',render);$('rpuVs').addEventListener('change',render);$('rpuKey').addEventListener('change',render);}
@@ -397,7 +397,7 @@ function run(){const tp=document.querySelector('input[name=rsm]:checked').value=
  for(let i=0;i<ymax;i++){const t=i+1,a=e.age+t-1,mk=t==cx||t==cw||t==N;if(ko&&!(t<=N+12||t%5==0||a%10==0||mk||t==ymax))continue;
   const ra=tv(A,gA,i)/A[i].cum,rb=tv(B,gB,i)/B[i].cum,wa=tv(A,gA,i)>=tv(B,gB,i);
   h+=`<tr class="${mk?'hl':''}"><td>${t} (${a})${t==cx?'<br><small>B反超</small>':''}${t==N?'<br><small>A辦理</small>':''}</td><td class="cR">${fm(A[i].cum*k)}</td><td class="cB">${fm(B[i].cum*k)}</td><td class="cR">${fm(A[i].X*k)}</td><td class="cB">${fm(B[i].X*k)}</td>${hasP?`<td class="cR">${fm(gA[i]*k)}</td><td class="cB">${fm(gB[i]*k)}</td>`:''}<td class="cR">${fm(A[i].W*k)}</td><td class="cB">${fm(B[i].W*k)}</td><td class="cR" style="${wa?'font-weight:700':''}">${fm((tv(A,gA,i)-A[i].cum)*k)}</td><td class="cB" style="${wa?'':'font-weight:700'}">${fm((tv(B,gB,i)-B[i].cum)*k)}</td><td class="cR">${pq(ra)}</td><td class="cB">${pq(rb)}</td><td class="cR">${pq(IA(t))}</td><td class="cB">${pq(IB(t))}</td></tr>`;}
- h+=`</tbody></table></div><div style="font-size:12px;color:#666;margin-top:6px;line-height:1.7">‧含紅利總報酬＝解約總額＋累計已領−累計保費；領回率＝(解約總額＋累計已領)÷累計保費。A 辦理後數字為概算（同上方減額繳清試算）；B 為本站一般試算於保額 ${SB} 萬之結果。<br>‧${GEN&&M.isr?'宣告利率非保證，可能調降；':''}紅利非保證，可能調降甚至為零，數字依上方所選情境。台幣僅以自訂匯率換算參考。正式內容以富邦人壽建議書為準。</div>`;
+ h+=`</tbody></table></div><div style="font-size:12px;color:#666;margin-top:6px;line-height:1.7">‧含紅利總報酬＝解約總額＋累計已領−累計保費；領回率＝(解約總額＋累計已領)÷累計保費。A 辦理後數字為概算（同上方減額繳清試算）；B 為本站一般試算於保額 ${SB} 萬之結果。<br>‧${GEN&&M.isr?'':''}數字依上方所選情境。台幣僅以自訂匯率換算參考。正式內容以富邦人壽建議書為準。</div>`;
  bx.innerHTML=h;}
 let tm=null;const deb=()=>{clearTimeout(tm);tm=setTimeout(run,220);};
 document.addEventListener('input',deb);document.addEventListener('change',deb);document.addEventListener('click',ev=>{if(ev.target&&(ev.target.id=='rpuOpen'||ev.target.id=='bU'||ev.target.id=='bT'))deb();});
