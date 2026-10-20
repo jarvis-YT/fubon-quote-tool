@@ -403,7 +403,38 @@ let tm=null;const deb=()=>{clearTimeout(tm);tm=setTimeout(run,220);};
 document.addEventListener('input',deb);document.addEventListener('change',deb);document.addEventListener('click',ev=>{if(ev.target&&(ev.target.id=='rpuOpen'||ev.target.id=='bU'||ev.target.id=='bT'))deb();});
 window.RS_run=run;
 })();
-</script><!--/RPUSAME--><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+</script><!--/RPUSAME--><!--RPUFRZ--><script>(function(){
+var css='.tw.rcF{position:relative}'+
+'.tw.rcF>.rcLg{position:sticky;top:0;left:0;z-index:5;background:#fff;margin:0!important;padding:4px 2px;box-sizing:border-box}'+
+'.tw.rcF table.rc{border-collapse:separate;border-spacing:0}'+
+'.tw.rcF table.rc thead th{position:sticky;z-index:3;background-clip:padding-box}'+
+'.tw.rcF table.rc thead tr:first-child th{top:var(--rcT0,0px)}'+
+'.tw.rcF table.rc thead tr:nth-child(2) th{top:var(--rcT1,0px)}'+
+'.tw.rcF table.rc thead th:not(.hB):not(.hR):not(.hD){background:#e8f0f8}'+
+'.tw.rcF table.rc thead tr:first-child th:first-child{left:0;z-index:4;background:#dfe9f5}'+
+'.tw.rcF table.rc tbody td:first-child{position:sticky;left:0;z-index:2;background:#f7f9fc;box-shadow:1px 0 0 #ccc}'+
+'.tw.rcF table.rc tbody tr.hl td:first-child{background:#ffeeb0}';
+var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+function fix(tw){
+  var tb=tw.querySelector('table.rc');if(!tb)return;
+  if(!tw.classList.contains('rcF')){
+    tw.classList.add('rcF');
+    var p=tw.previousElementSibling;
+    if(p&&p.tagName=='DIV'&&p.querySelector('.lgR')&&p.querySelector('.lgB')){p.classList.add('rcLg');tw.insertBefore(p,tw.firstChild);}
+  }
+  var lg=tw.querySelector(':scope>.rcLg'),h0=lg?lg.offsetHeight:0;
+  if(lg)lg.style.width=tw.clientWidth+'px';
+  var r0=tb.tHead&&tb.tHead.rows[0];var h1=r0?r0.getBoundingClientRect().height:0;
+  // row-1 cells that span 2 rows: height of first row is its own row box
+  tw.style.setProperty('--rcT0',h0+'px');tw.style.setProperty('--rcT1',(h0+h1)+'px');
+}
+function run(){document.querySelectorAll('.tw').forEach(function(tw){if(tw.querySelector('table.rc'))fix(tw)})}
+var q=0;function sch(){if(q)return;q=1;requestAnimationFrame(function(){q=0;run()})}
+new MutationObserver(sch).observe(document.documentElement,{childList:true,subtree:true});
+addEventListener('resize',function(){document.querySelectorAll('.tw.rcF').forEach(fix)});
+if(document.readyState!='loading')run();else document.addEventListener('DOMContentLoaded',run);
+})();
+</script><!--/RPUFRZ--><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
 navigator.serviceWorker.register('sw.js').catch(function(){});
 navigator.serviceWorker.addEventListener('message',function(ev){if(!ev.data||ev.data.type!=='qt-updated'||document.getElementById('qtupd'))return;
 var b=document.createElement('div');b.id='qtupd';b.textContent='🔄 網站資料已更新，點此重新整理以顯示最新數字';
