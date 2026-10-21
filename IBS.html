@@ -235,7 +235,26 @@ document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',
 $('mode').addEventListener('change',()=>{const P=$('mode').value=='P';$('amtL').textContent=P?'計畫年繳保費(美元,換算不含折扣)':'保額(萬新臺幣)';$('amt').value=P?(CUR=='TWD'?300000:10000):M.illus.S;run();});
 const setCur=c=>{$('cur').value=c;$('bU').classList.toggle('on',c=='USD');$('bT').classList.toggle('on',c=='TWD');run();};
 $('bU').onclick=()=>setCur('USD');$('bT').onclick=()=>setCur('TWD');$('fx2').addEventListener('input',()=>{$('fx').value=$('fx2').value;run();});
-{const u=new URLSearchParams(location.search);['g','age','term','amt'].forEach(x=>{if(u.get(x)!=null)$(x).value=u.get(x)});if(u.get('cur')&&CUR!='TWD')$('cur').value=u.get('cur');}
+/*URLP*/(function(){
+const u=new URLSearchParams(location.search),A=k=>{const v=u.get(k);return v==null||!v.trim()?null:v.trim();};
+const G=typeof M!='undefined';
+const AR=t=>{const r=G?M.terms[t]:C.ages[t];return r?[+r[0],+r[1]]:null;};
+const SR=(t,a)=>{if(G){const ft=M.faceTable&&M.faceTable[t];let lo=(ft&&ft[1])||M.smin,hi=(ft&&ft[2])||M.smax;if(M.maxf&&M.maxf[a]!=null)hi=Math.min(hi,M.maxf[a]);return [lo,hi];}return [C.smin,C.maxf?C.maxf[a]:C.smax];};
+const opt=(id,v)=>{const e=$(id);if(e&&v!=null&&[...e.options].some(o=>o.value==v)){e.value=v;return true;}return false;};
+if(A('mode')&&$('mode').value!=A('mode')&&opt('mode',A('mode')))$('mode').dispatchEvent(new Event('change'));
+opt('g',A('g'));opt('term',A('term'));opt('sc',A('sc'));
+const ag=parseInt(A('age'),10),r=AR(+$('term').value);
+if(isFinite(ag)&&r)$('age').value=Math.min(r[1],Math.max(r[0],ag));
+const am=parseFloat(A('amt'));
+if(isFinite(am)&&am>0){if($('mode').value=='S'){const [lo,hi]=SR(+$('term').value,+$('age').value);$('amt').value=+Math.min(hi,Math.max(lo,am)).toFixed(1);}else $('amt').value=am;}
+const fx=parseFloat(A('fx'));if(isFinite(fx)&&fx>0&&$('fx2')){$('fx2').value=fx;if($('fx'))$('fx').value=fx;}
+const cu=A('cur');if((cu=='USD'||cu=='TWD')&&$('bU')&&!(G&&CUR=='TWD')){$('cur').value=cu;$('bU').classList.toggle('on',cu=='USD');$('bT').classList.toggle('on',cu=='TWD');}
+const sync=()=>{const q=new URLSearchParams(location.search);['g','age','term','amt','mode'].forEach(k=>q.set(k,$(k).value));
+ if($('cur').value=='TWD'&&!(G&&CUR=='TWD')){q.set('cur','TWD');q.set('fx',$('fx2')?$('fx2').value:$('fx').value);}else{q.delete('cur');q.delete('fx');}
+ try{history.replaceState(null,'','?'+q.toString()+location.hash);}catch(e){}};
+['g','age','term','amt','mode','fx2'].forEach(k=>{const e=$(k);if(e){e.addEventListener('input',sync);e.addEventListener('change',sync);}});
+['bU','bT'].forEach(k=>{const e=$(k);if(e)e.addEventListener('click',sync);});
+})();
 window.addEventListener('resize',run); run();
 </script><!--RPU--><script>const RPU={"code":"IBS","keys":{"IBS070150":{"PA":[714,2299,3860,5393,6898,8378]},"IBS070151":{"PA":[715,2302,3861,5394,6900,8380]},"IBS070152":{"PA":[716,2302,3862,5396,6901,8381]},"IBS070153":{"PA":[717,2304,3864,5397,6902,8383]},"IBS070154":{"PA":[718,2304,3865,5398,6904,8385]},"IBS070155":{"PA":[717,2304,3867,5400,6905,8387]},"IBS070156":{"PA":[718,2305,3866,5399,6907,8388]},"IBS070157":{"PA":[717,2304,3867,5399,6907,8390]},"IBS070158":{"PA":[716,2304,3866,5400,6908,8390]},"IBS070159":{"PA":[715,2302,3867,5401,6909,8393]},"IBS070160":{"PA":[712,2302,3866,5400,6911,8392]},"IBS070161":{"PA":[710,2301,3864,5401,6911,8393]},"IBS070162":{"PA":[706,2299,3864,5399,6910,8393]},"IBS070163":{"PA":[702,2296,3862,5398,6909,8393]},"IBS070164":{"PA":[699,2292,3858,5397,6908,8394]},"IBS070165":{"PA":[694,2290,3856,5395,6908,8393]},"IBS070166":{"PA":[688,2285,3853,5394,6906,8391]},"IBS070167":{"PA":[683,2280,3850,5390,6904,8390]},"IBS070168":{"PA":[676,2275,3845,5386,6902,8389]},"IBS070169":{"PA":[668,2269,3840,5382,6898,8387]},"IBS070170":{"PA":[660,2263,3835,5379,6894,8386]},"IBS070171":{"PA":[650,2255,3829,5374,6892,8383]},"IBS070172":{"PA":[640,2246,3822,5370,6888,8380]},"IBS070173":{"PA":[628,2238,3815,5365,6883,8376]},"IBS070250":{"PA":[708,2293,3851,5382,6887,8369]},"IBS070251":{"PA":[711,2296,3854,5386,6890,8371]},"IBS070252":{"PA":[714,2298,3856,5389,6893,8373]},"IBS070253":{"PA":[715,2300,3859,5391,6896,8375]},"IBS070254":{"PA":[717,2302,3861,5394,6898,8380]},"IBS070255":{"PA":[719,2306,3863,5396,6902,8381]},"IBS070256":{"PA":[721,2307,3865,5398,6902,8384]},"IBS070257":{"PA":[722,2307,3867,5400,6905,8385]},"IBS070258":{"PA":[723,2309,3868,5401,6907,8385]},"IBS070259":{"PA":[723,2309,3868,5402,6909,8387]},"IBS070260":{"PA":[723,2311,3870,5405,6910,8391]},"IBS070261":{"PA":[723,2310,3871,5405,6912,8392]},"IBS070262":{"PA":[722,2310,3871,5404,6913,8393]},"IBS070263":{"PA":[720,2309,3871,5405,6913,8395]},"IBS070264":{"PA":[719,2309,3870,5404,6915,8397]},"IBS070265":{"PA":[717,2307,3869,5406,6913,8397]},"IBS070266":{"PA":[714,2305,3869,5404,6914,8396]},"IBS070267":{"PA":[711,2304,3868,5405,6914,8397]},"IBS070268":{"PA":[707,2301,3865,5402,6912,8396]},"IBS070269":{"PA":[702,2297,3863,5401,6911,8397]},"IBS070270":{"PA":[697,2292,3860,5399,6911,8397]},"IBS070271":{"PA":[689,2287,3855,5394,6908,8394]},"IBS070272":{"PA":[681,2281,3850,5391,6905,8393]},"IBS070273":{"PA":[672,2273,3845,5388,6904,8392]}},"expRate":0.01,"saOnly":false,"rnd":"round","calc":false};
 /*RPU PILOT compare*/function rpuCmp2(B,R,N,age,k,irrF,ko,lb){
