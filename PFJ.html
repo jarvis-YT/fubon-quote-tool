@@ -17,12 +17,13 @@ body.rpuopen tr.hl td{background:#fff7d6}body.rpuopen tr.hl td:first-child{backg
 .tog{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;border:2px solid #0b5fa5}.seg{display:flex;flex:1 1 240px;border-radius:12px;overflow:hidden;border:2px solid #0b5fa5}
 .seg button{flex:1;height:52px;font-size:18px;font-weight:bold;border:0;background:#fff;color:#0b5fa5}.seg button.on{background:#0b5fa5;color:#fff}.fxw{flex:0 1 160px}
 .hcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:12px}.hc{border-radius:10px;padding:10px 12px;color:#fff}.hc small{display:block;font-size:12px;opacity:.9}.hc b{font-size:22px;display:block}.hc.d{background:#c0392b}.hc.g{background:#1e8449}
+td.cm,th.cm{font-weight:bold}th.cm{background:#f3e5f5;color:#6a1b9a;font-size:14px}td.cm{color:#4a148c;font-size:14px;text-align:center}td.cm.pk{outline:2px solid #6a1b9a;outline-offset:-2px}td.cm.pk::before{content:'★ ';color:#f5b301}
 td.cd,th.cd{background:#fdecea;color:#a93226;font-weight:bold}td.cg,th.cg{background:#e9f7ef;color:#1e8449;font-weight:bold}
 @media(max-width:600px){.hcards{grid-template-columns:1fr 1fr}.hc b{font-size:19px}}
 canvas{width:100%;height:260px;display:block}
 @media(max-width:600px){.grid{grid-template-columns:1fr 1fr}header h1{font-size:17px}.sum{grid-template-columns:1fr 1fr}canvas{height:220px}}
 /*LBL*/.bx{display:none}table.sbx .bx{display:table-cell}table.sbx .bx.na{display:none}th.bx,td.bx{background:#f3f0fa;color:#4a3b78}.fxn{font-size:11px;color:#666;display:block;margin-top:3px}.chip{font-size:13px;background:#eef6ee;border-left:4px solid #1e8449;padding:8px 10px;line-height:1.6;margin-bottom:8px}.lg{font-size:12px;color:#4a3b78;margin:0 0 6px}
-th.tr2{background:#d1fae5;color:#065f46}td.tr2{background:#f0fdf6;color:#047857;font-weight:700}</style></head><body>
+th.tr2{background:#d1fae5;color:#065f46}td.tr2{background:#f0fdf6;color:#047857;font-weight:700}</style><script>function multHeat(tb){const c=[...tb.querySelectorAll('td.cm')];if(!c.length)return;const v=c.map(e=>+e.dataset.m),mx=Math.max(...v),mn=Math.min(...v),rg=mx-mn||1;let pk=false;c.forEach((e,i)=>{const t=(v[i]-mn)/rg;e.style.background=`hsl(285,55%,${(96-t*46).toFixed(0)}%)`;e.style.color=t>.6?'#fff':'#4a148c';if(!pk&&v[i]==mx){e.classList.add('pk');e.title='最高壽險倍數';pk=true;}});}</script></head><body>
 <header><a href="home.html">← 商品選單</a><h1>富邦人壽美富紅盈外幣分紅終身壽險（PFJ，美元）快速報價</h1><small>費率／保價金／身故／紅利資料取自建議書 V1.0-1150608；僅供內部試算，以公司正式建議書為準</small></header><div id="trust" style="background:#eaf2fb;color:#0b5fa5;font-size:12px;text-align:center;padding:4px 8px">✔ 依富邦官方建議書 V1.0-1150608 逐年核對・紅利假設：最可能 5.50%／較低 3.00%</div>
 <div class="wrap">
 <div class="card tog"><div class="seg"><button id="bU" class="on">美元 USD</button><button id="bT">台幣 TWD</button></div><div class="fxw"><label>匯率 USD→TWD</label><input id="fx2" type="number" inputmode="decimal" value="31" step="0.01"><small class="fxn">台幣僅依自訂匯率換算（建議書為美元）</small></div><input type="hidden" id="cur" value="USD"></div>
@@ -40,7 +41,7 @@ th.tr2{background:#d1fae5;color:#065f46}td.tr2{background:#f0fdf6;color:#047857;
 <div class="card"><div id="msg" class="err"></div><div class="hcards" id="hc"></div><div class="sum" id="sum"></div></div>
 <div class="card"><canvas id="ch"></canvas></div>
 <div class="card"><div class="chip">本頁試算條件：繳別 <b>年繳</b>｜年度保單紅利給付方式 <b>購買增額繳清保險金額（增購保額）</b>｜IRR 現金流：<b>保費年初繳、解約總額年末領（年複利）</b><br><small>建議書若選現金給付、儲存生息，或半年／季／月繳，數字會不同；對照時請選相同條件。</small></div><div class="row"><input type="checkbox" id="keyonly"><label for="keyonly" style="margin:0">只顯示重點年度（1~10、15、20、25、30…及每10歲）</label></div><div class="row"><input type="checkbox" id="bxon"><label for="bxon" style="margin:0">展開解約總額明細（B／E／Y）</label></div><p class="lg">B＝年度末解約金（保證）；E＝終期保單紅利－解約（預估）；Y＝累計增額繳清保險金額之解約金（預估）。B+E+Y＝建議書「年度末解約時可領總金額」。</p>
-<div class="tw"><table id="tbl"><thead><tr><th>年度<br>(年齡)</th><th>年度保費</th><th>累計保費</th><th class="cd">身故/完全<br>失能總額</th><th>解約總額<br><small>（B+E+Y）</small></th><th class="bx">B 解約金<br><small>保證</small></th><th class="bx">E 終期紅利<br><small>解約</small></th><th class="bx">Y 增額繳清<br><small>解約金</small></th><th>當年紅利</th><th>壽險<br>倍數</th><th>每年增值</th><th class="cg">年增率</th><th class="tr2">⭐ 總報酬率<br><small>含紅利</small></th><th>IRR</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<div class="tw"><table id="tbl"><thead><tr><th>年度<br>(年齡)</th><th>年度保費</th><th>累計保費</th><th class="cd">身故/完全<br>失能總額</th><th>解約總額<br><small>（B+E+Y）</small></th><th class="bx">B 解約金<br><small>保證</small></th><th class="bx">E 終期紅利<br><small>解約</small></th><th class="bx">Y 增額繳清<br><small>解約金</small></th><th>當年紅利</th><th class="cm">壽險<br>倍數</th><th>每年增值</th><th class="cg">年增率</th><th class="tr2">⭐ 總報酬率<br><small>含紅利</small></th><th>IRR</th></tr></thead><tbody id="tb"></tbody></table></div></div>
 <!--WDRAW--><div class="card" id="wd"><button id="wdBtn" type="button" style="width:100%;padding:10px;font-size:16px;font-weight:700;border-radius:10px;border:1px solid #0b4f8a;background:#e8f1fc;color:#0b4f8a">💵 試算部分提領（存完分年提領・估算）▾</button><div id="wdBody" style="display:none">
 <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:14px">
 <label>提領方式 <select id="wdM"><option value="S">自動算最高每年可領</option><option value="U">自訂每年金額</option><option value="N">只做一次提領</option></select></label>
@@ -105,9 +106,10 @@ function run(){
     const inc=prev==null?null:r.X-prev, incp=prev?inc/prev:null;
     const hl=r.t<=10||r.t%5==0||r.age%10==0; prev=r.X; xs.push(r.X*k);ws.push(r.W*k);cs.push(r.cum*k);
     if(ko&&!hl) continue;
-    h+=`<tr class="${(r.t%5==0||r.age%10==0)?'hl':''}"><td>${r.t} (${r.age})</td><td>${fmt(r.py*k)}</td><td>${fmt(r.cum*k)}</td><td class="cd">${fmt(r.W*k)}</td><td>${fmt(r.X*k)}</td><td class="bx">${fmt(r.b*k)}</td><td class="bx">${fmt(r.e*k)}</td><td class="bx">${fmt(r.y*k)}</td><td>${fmt(r.K*k)}</td><td>${(r.W/r.cum).toFixed(2)}</td><td>${fmt(inc==null?null:inc*k)}</td><td class="cg">${pp(incp)}</td><td class="tr2">${pp(r.X/r.cum-1)}</td><td>${pp(irr(r,pays))}</td></tr>`;
+    h+=`<tr class="${(r.t%5==0||r.age%10==0)?'hl':''}"><td>${r.t} (${r.age})</td><td>${fmt(r.py*k)}</td><td>${fmt(r.cum*k)}</td><td class="cd">${fmt(r.W*k)}</td><td>${fmt(r.X*k)}</td><td class="bx">${fmt(r.b*k)}</td><td class="bx">${fmt(r.e*k)}</td><td class="bx">${fmt(r.y*k)}</td><td>${fmt(r.K*k)}</td><td class="cm" data-m="${(r.W/r.cum).toFixed(4)}">${(r.W/r.cum).toFixed(2)}</td><td>${fmt(inc==null?null:inc*k)}</td><td class="cg">${pp(incp)}</td><td class="tr2">${pp(r.X/r.cum-1)}</td><td>${pp(irr(r,pays))}</td></tr>`;
   }
   $('tb').innerHTML=h;
+  multHeat($('tb'));
   const R=q.rows, at=t=>R[t-1], gr=t=>t>1&&t<=R.length?R[t-1].X/R[t-2].X-1:null, pc=x=>pp(x)||'—';
   const dy=[1,term+1,10,20].filter((v,i,a)=>v<=R.length&&a.indexOf(v)==i);
   const a65=R.find(r=>r.age==65);
