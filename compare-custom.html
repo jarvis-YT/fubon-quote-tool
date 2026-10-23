@@ -179,7 +179,7 @@ function drawSum(R){if(!R.length){$('sum').innerHTML='';return;}
  const by=(r,t)=>r.rows[t-1];let s=`<tr><th>項目</th>${R.map(r=>`<th style="color:${COL[r.i]}">${'ABC'[r.i]} <a href="${BY[r.code].page}" style="color:inherit">${r.code}</a><br><small>${termLab(BY[r.code],r.term)}</small></th>`).join('')}</tr>`;
  s+=h('保額',r=>r.S+' '+r.CN);s+=h('年繳保費（折扣後）',r=>u+fmt(r.p2)+(r.p1!=r.p2?`<br><small>首年 ${fmt(r.p1)}</small>`:''));s+=h('總繳保費',r=>u+fmt(r.tot));
  s+=h('紅利／給付方式',r=>r.sc+(r.dm!='—'?'｜'+r.dm:''));
- const sv=r=>first(r.rows,x=>x.surv>0);s+=h('第一次還本',r=>{const x=sv(r);return x?`<b>第 ${x.t} 年</b>（${x.age} 歲）<br><small>${u}${fmt(x.surv)}</small>`:'無生存金';},r=>{const x=sv(r);return x?x.t:null}).replace('<tr>','<tr>');
+ const sv=r=>first(r.rows,x=>x.surv>0);s+=h('第一次領生存金',r=>{const x=sv(r);return x?`<b>第 ${x.t} 年</b>（${x.age} 歲）<br><small>${u}${fmt(x.surv)}</small>`:'無生存金';},r=>{const x=sv(r);return x?x.t:null}).replace('<tr>','<tr>');
  // min is best for years
  const be=r=>first(r.rows,x=>x.cum>0&&x.val>=x.cum-0.5);s+=h('回本年度',r=>{const x=be(r);return x?`<b>第 ${x.t} 年</b>（${x.age} 歲）`:'—';},Object.assign(r=>{const x=be(r);return x?x.t:null},{min:1}));
  KY.forEach(t=>{s+=h(`第 ${t} 年領回率`,r=>by(r,t)?`<span class="g">${pc(by(r,t).rt)}</span>`:'',r=>by(r,t)?by(r,t).rt:null);});
@@ -188,7 +188,7 @@ function drawSum(R){if(!R.length){$('sum').innerHTML='';return;}
  KY.forEach(t=>{s+=h(`第 ${t} 年身故保障`,r=>by(r,t)?`<span class="d">${u}${fmt(by(r,t).W)}</span>`:'');});
  s+=h('第 1 年壽險倍數',r=>`<span class="lv">${r.rows[0].lv.toFixed(2)} 倍</span>`);
  s+=h('最高壽險倍數',r=>{const m=r.rows.reduce((a,x)=>x.lv>a.lv?x:a);return `<span class="lv">${m.lv.toFixed(2)} 倍</span><br><small>第 ${m.t} 年</small>`;},r=>Math.max(...r.rows.map(x=>x.lv)));
- // fix: 第一次還本 earliest is best
+ // fix: 第一次領生存金 earliest is best
  $('sum').innerHTML=s;
  const tr=$('sum').rows[5];if(tr){const n=R.map(r=>{const x=sv(r);return x?x.t:1e9});const m=Math.min(...n);[...tr.cells].slice(1).forEach((c,i)=>c.classList.toggle('best',n[i]==m&&m<1e9&&n.filter(v=>v==m).length<R.length));}}
 function drawChart(R){if(!R.length){$('chart').innerHTML='';return;}
