@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自選商品比較</title>
+<style>
+*{box-sizing:border-box}body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f4f6fa;color:#222;-webkit-text-size-adjust:100%}
+header{background:#0b5fa5;color:#fff;padding:12px 16px}header h1{margin:0;font-size:19px}header a{color:#fff;font-size:13px}
+.wrap{padding:12px;max-width:1200px;margin:auto}.card{background:#fff;border-radius:10px;box-shadow:0 1px 3px #0002;padding:12px 14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+label{font-size:13px;color:#555;display:block;margin-bottom:3px}
+input,select{width:100%;height:44px;padding:6px 8px;font-size:16px;border:1px solid #bbb;border-radius:8px;background:#fff}
+.tog{display:flex;gap:6px;margin-bottom:10px}.tog button{flex:1;height:44px;font-size:17px;font-weight:700;border:2px solid #0b5fa5;background:#fff;color:#0b5fa5;border-radius:8px}.tog button.on{background:#0b5fa5;color:#fff}
+.slot{display:grid;grid-template-columns:28px 1fr 96px;gap:6px;align-items:center;margin-bottom:8px}.dot{width:22px;height:22px;border-radius:50%;color:#fff;font-weight:700;text-align:center;line-height:22px;font-size:13px}
+.warn{color:#c0392b;font-size:13px;margin:4px 0}
+.tw{overflow:auto;max-height:75vh;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;font-size:13px;width:max-content;min-width:100%}
+th,td{padding:5px 7px;border-bottom:1px solid #e3e6ec;text-align:right;white-space:nowrap;background:#fff}
+th{background:#eef3fa;font-weight:600;text-align:center}
+#sum th:first-child,#sum td:first-child{text-align:left;position:sticky;left:0;z-index:2;background:#f7f9fc}
+#yt thead th{position:sticky;top:0;z-index:3}#yt thead tr:nth-child(2) th{top:27px}
+#yt td:first-child,#yt th:first-child{position:sticky;left:0;z-index:2;background:#f7f9fc;text-align:center}#yt thead th:first-child{z-index:4}
+.d{color:#c0392b;font-weight:700}.g{color:#1e8449;font-weight:700}.lv{background:#f3e8ff;color:#6c2bd9;font-weight:700}.best{outline:2px solid #1e8449;outline-offset:-2px}
+.key td{background:#fffbe6}small{color:#777}.ck{font-size:14px;display:flex;align-items:center;gap:6px}.ck input{width:20px;height:20px}
+#sum{width:100%;min-width:0;table-layout:fixed}#sum td,#sum th{white-space:normal;word-break:break-word;font-size:12.5px;padding:5px 4px}#sum tr>*:first-child{width:28%}
+details summary{cursor:pointer;color:#0b5fa5;font-size:14px}
+</style></head><body>
+<header><a href="index.html">← 回首頁</a><h1>自選商品比較</h1><small>選 2–3 張商品，同條件並排比較還本、回本、領回率、IRR 與身故保障</small></header>
+<div class="wrap">
+<div class="card">
+<div class="tog"><button id="bU" class="on">美元</button><button id="bT">台幣</button></div>
+<div class="grid">
+<div><label>性別</label><select id="g"><option value="1">男</option><option value="2">女</option></select></div>
+<div><label>保險年齡</label><input id="age" type="number" inputmode="numeric" value="40"></div>
+<div><label>比較方式</label><select id="mode"><option value="P">同樣總繳保費</option><option value="S">同樣保額</option></select></div>
+<div><label id="amtL">總繳保費</label><input id="amt" type="number" inputmode="decimal" value="100000"></div>
+<div><label>匯率（台幣/美元）</label><input id="fx" type="number" step="0.01" value="31"></div>
+</div>
+<div style="margin-top:12px" id="slots"></div>
+<div class="warn" id="msg"></div>
+<small>分紅商品用最可能紅利（中分紅）、利變商品用最新宣告利率；有生存金的用現金給付，其他用購買增額繳清；繳費方式首期匯款、續期金融機構轉帳。台幣與美元商品依上方匯率換算。</small>
+</div>
+<div class="card"><b>重點比較</b><div class="tw" style="max-height:none"><table id="sum"></table></div></div>
+<div class="card"><b>領回率走勢</b> <small>（解約總額＋累計領回）÷ 累計保費</small><div id="chart"></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>逐年比較</b><label class="ck"><input type="checkbox" id="kv" checked>只看重點年度</label></div>
+<div class="tw"><table id="yt"></table></div></div>
+<div class="card"><details><summary>計算說明</summary><small>領回率＝（年度末解約總額＋已領生存金與現金紅利）÷ 累計實繳保費。含紅利總報酬＝領回率－100%。回本年度＝領回率第一次達到 100% 的保單年度。IRR：保費年初繳、生存金／現金紅利年末領、解約總額年末領。壽險倍數＝身故保障 ÷ 累計保費。正式數字以公司建議書為準。</small></details></div>
+</div>
+<script>
+// Generic Fubon participating engine (mirrors engine.py, verified vs workbooks)
+const IIF=(c,a,b)=>c?a:(b===undefined?false:b),AND=(...a)=>a.every(Boolean),OR=(...a)=>a.some(Boolean),NN=x=>typeof x=='number'?x:0,RND=(x,d)=>Math.round(x*10**d)/10**d;
+const ENG={
+ rh:x=>Math.floor(x+0.5), cu:x=>Math.ceil(Math.round(x*1e6)/1e6),
+ key(M,g,age,term){const a=M.code+String(term).padStart(2,'0')+String(g).padStart(2,'0')+String(age).padStart(2,'0'),b=M.code+String(g).padStart(2,'0')+String(age).padStart(2,'0');if(term!=1)return a;const D=ENG._D;if(D&&D.DIE){if(D.DIE[a])return a;if(D.DIE[b])return b;}return M.termOmit1?b:a;},
+ // 依建議書「年度保單紅利給付方式」不可選（輸入頁 E19 無下拉、固定「繳清保險金額」）＝條款限購買增額繳清：起領前不會有現金紅利，紅利增加保額→起領後生存金變多
+ PUAONLY:['PAJ','PAK','PALA','PALB','PALC','PAN','PF55','PF60','PF65','PFNA','PFNB','PFNC','PFO','PFVA','PFVB','PFVC','PFVD','PFWA','PFWB','PFWC','PFWD','PFWE','PFWF','PFZA','PFZB'],
+ modes(M,D,k){if(M.isr)return M.isrModes||['PS','PC','PUA'];if(ENG.PUAONLY.includes(M.code)&&D.PVFB[k]&&D.PVFB0[k]&&D._DIE2[k])return ['PUA'];const m=[];if(D.PVFB[k]&&D.PVFB0[k]&&D._DIE2[k])m.push('PUA');m.push('SAVE','CASH');return m;},
+ prem(M,D,g,age,term,S,m1,m2){ENG._D=D;const k=ENG.key(M,g,age,term),rate=D.GP[k];if(!rate||!D.DIE[k])return null;
+   const raw=M.premRoundDown?Math.floor(Math.round(S*rate*1e6)/1e6):ENG.rh(S*rate);
+   const ev=e=>{try{return +eval(e)||0}catch(_){return 0}};
+   const hf=ev(M.js_hf),cap=ev(M.js_cap),a=ev(M.js_meth[m1]||'0'),b=ev(M.js_meth[m2]||'0');
+   const d1=Math.min(RND(hf+a,6),cap),d2=Math.min(RND(hf+b,6),cap);
+   return {k,rate,raw,d1,d2,p1:ENG.rh(raw*(1-d1)),p2:ENG.rh(raw*(1-d2))};},
+ quote(M,D,g,age,term,S,sc,mode,p1,p2){ENG._D=D;
+  const R=M.rup?ENG.cu:ENG.rh,k=ENG.key(M,g,age,term),ymax=M.fixedYears||(M.maxAge-age+1),f=sc?1:0,bk=k+(sc||1);
+  if(!ENG.modes(M,D,k).includes(mode))mode='SAVE';
+  if(M.isr)return ENG.quoteIsr(M,D,g,age,term,S,sc,mode,p1,p2,M.eff);
+  const B=D.BONU[bk],BD=D.BONUDIE[bk],BC=D.BONUCV[bk],SV=D.SRV[k],ar=M.accRate||0,ra=M.accUp?(x=>Math.ceil(Math.round(x*1e4)/1e4)):ENG.rh;
+  const payN=M.payYears=='term'?term:term-age;let N=0,A=0,cum=0,rows=[];
+  for(let t=1;t<=ymax;t++){
+   const H=R(D.DIE[k][t-1]*S),I=R(D.CV[k][t-1]*S),Kb=(f&&B)?B[t-1]:0;
+   const K=f?R(S*Kb)+((t>1&&M.puaK&&mode=='PUA')?R(N/1e4*Kb):0):0;
+   const pv=mode=='PUA'?(D.PVFB[k][t]||0):0;
+   if(mode=='PUA'&&t<ymax&&pv)N+=M.mDiv?ENG.rh(K/(pv/1e4)):ENG.rh(K/pv);
+   const ex=(t==ymax&&M.finalExtra&&mode=='PUA')?K:0;
+   const Q=mode=='PUA'?R(N/1e4*D._DIE2[k][t-1])+ex:0,R0=mode=='PUA'?R(N/1e4*D.PVFB0[k][t])+ex:0;
+   const AD=BD?R(f*S*BD[t-1]):0,AE=BC?R(f*S*BC[t-1]):0;
+   const Fs=SV?R(SV[t-1]*S):0,Os=(SV&&mode=='PUA')?R(SV[t-1]*N/1e4):0;
+   if(mode=='SAVE')A=t>1?ra(A*Math.pow(1+RND(ar/12,10),12)+K):K;
+   const Kc=mode=='CASH'?K:(mode=='SAVE'?A:0);
+   const py=t<=payN?(t==1?p1:p2):0;cum+=py;
+   rows.push({t,age:age+t-1,py,cum,W:H+Q+AD+Kc,X:I+R0+AE+Kc,surv:Fs+Os,K,cash:mode=='CASH'?K:0,b:I,e:AE,y:R0,c:Kc});
+  }return {k,mode,rows};},
+ // interest-sensitive: sc = declared rate (decimal)
+ // interest-sensitive (verified vs 計算 sheet logic): sc = declared rate; mode PUA(全期增額) / PS(前P4年增額,後儲存生息) / PC(前P4年增額,後現金給付)
+ quoteIsr(M,D,g,age,term,S0,decl,mode,p1,p2,eff,rp){let S=S0;
+  const cu=x=>Math.ceil(Math.round(x*1e9)/1e9),rh=ENG.rh,r10=x=>Math.ceil(Math.round(x*1e13)/1e3)/1e10,R10=x=>Math.round(x*1e10)/1e10,k=ENG.key(M,g,age,term),as=M.assumed;
+  const DL=t=>typeof decl=='function'?decl(t):decl,dF=t=>Math.max(0,RND(RND(Math.max(DL(t),as),4)-as,5)),ymax=M.maxAge-age+1,SV=D.SRV&&D.SRV[k],payN=M.payYears=='term'?term:term-age;
+  const JA=M.p4a??16,P4=mode=='PUA'?ymax:Math.max(JA-age,M.p4m??6);
+  const E=eff?new Date(eff+'T00:00:00Z'):new Date(Date.UTC(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()));
+  const ed=E.getUTCDate(),DAY=864e5,dim=(y,m)=>new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  const BDj=j=>{const y=E.getUTCFullYear(),m=E.getUTCMonth()+j;return new Date(Date.UTC(y,m,Math.min(ed,dim(y,m))));};
+  const rates=j=>{const bd=BDj(j),bc=new Date(Date.UTC(bd.getUTCFullYear(),bd.getUTCMonth(),1)),be=new Date(Date.UTC(bd.getUTCFullYear(),bd.getUTCMonth()+1,0));
+    const BF=bc<E?0:Math.round((bd-bc)/DAY),BG=Math.round((be-bd)/DAY)+1,BH=BF+BG;const dd=DL(Math.ceil(j/12));return [R10(dd*BF/365),R10(dd*BG/365),R10(dd*BH/365)];};
+  const rdn=x=>{const L=String(Math.floor(Math.abs(x))).length,d=L<=5?10:15-L;return Math.floor(Math.round(x*10**d*1e3)/1e3)/10**d;};
+  const TW=!!M.kRound,AD=M.accDig||10,RA=x=>Math.round(x*10**AD)/10**AD,JD=M.juvDig||10,RJ=x=>Math.round(x*10**JD)/10**JD,UP=TW?(x=>rh(x)):(x=>Math.ceil(Math.round(x*1e6)/1e6));
+  let N=0,cum=0,BX=0,BZp=0,BT=0,rows=[],CX=0,AK=0,offP=0,offNext=0,offUsed=0;
+  for(let t=1;t<=ymax;t++){
+   const cvt=!!(rp&&t>rp.n);if(cvt){S=0;if(t==rp.n+1)N+=rp.Sp;}
+   const RU=M.isrUp===false?rh:cu,H=RU(D.DIE[k][t-1]*S),I=RU(D.CV[k][t-1]*S),pv=RND(D.PV[k][t-1]*S,10),diff=dF(t),w=D.PVFB[k][t]||0;
+   const CA=TW?rh(pv*diff):r10(pv*diff),CB=t>1?(TW?rh(rh(RND(N/1e4*w,3)*diff)):r10(RND(N/1e4*w,3)*diff)):0,Ka=TW?CA:cu(CA),Kb=TW?CB:cu(CB),K=Ka+Kb,late=t>P4;
+   const at=age+t-1;let juvW=null,juvX=null;
+   if(at<JA){ // juvenile: 回饋金 accumulate (daily interest, monthly) until age 15 year-end, then one-time PUA purchase
+     const off=(t<payN)?Math.min(CA,p2):0;let CV=0;
+     for(let m=1;m<=12;m++){const j=12*(t-1)+m,[AZ,BA,BB]=rates(j),CR=m==12?CA:0,CT=m==12?off:0;
+       CV=RJ(CX*(1+AZ))+CR;const CW=RJ((CR-CT)*(1+BA));CX=CW+RJ(CX*(1+BB));}
+     AK=AK+Ka-Math.ceil(offP);offP=off;offNext=off;
+     const pz=(t<term&&at<JA-1);juvW=pz?0:AK;juvX=pz?0:UP(CV);
+     if(at==JA-1&&w){N+=rh(UP(CV)/(w/1e4));juvX=null;}
+   } else if(!late&&at<M.maxAge&&w)N+=rh(K/(w/1e4));
+   if(late&&mode=='PS'){let sumZ=0;
+     for(let m=1;m<=12;m++){const j=12*(t-1)+m,[AZ,BA,BB]=rates(j);const nw=m==12?CA+CB:0,BY=m==12?RA((BX+BZp)*AZ):0;
+       const bx=rdn(nw+BX+BY+BZp);if(m<12)sumZ+=BZp;else sumZ+=BZp;const bz=RA(bx*(m==12?BA:BB));
+       if(m==12){const BW=TW?rh(BY+sumZ):Math.ceil(Math.round((BY+sumZ)*1e9)/1e9);BT=K+BW+BT;}
+       BX=bx;BZp=bz;}}
+   const ex=(t==ymax)?K:0;
+   let Q=RU((M.dieRound?rh:cu)(D._DIE2[k][t-1]*N/1e4))+(late?0:ex),R0=RU(RND(N/1e4*D.PVFB0[k][t],3))+(late?0:ex);
+   if(juvW!=null)Q=juvW;if(juvX!=null)R0=juvX;
+   const Fs=SV?cu(SV[t-1]*S):0,Os=SV?cu(SV[t-1]*N/1e4):0;
+   const cash=(late&&mode=='PC')?K:0,acc=(late&&mode=='PS')?BT:0;
+   const py=(t<=payN&&!cvt)?(t==1?p1:p2)-(t>1&&at-1<16?offUsed:0):0;cum+=py;offUsed=offNext;offNext=0;
+   rows.push({t,age:age+t-1,py,cum,W:H+Q+acc+cash,X:I+R0+acc+cash,surv:Fs+Os,K,cash,b:I,e:0,y:R0,c:acc+cash,base:cvt?rp.Sp:S0*1e4,pua:cvt?N-rp.Sp:N});
+  }return {k,mode,rows};},
+ // IRR on flows: premium at start of year, survival/cash payouts at end of year, X at end of year t
+ irr(rows,t){const fl=[];for(let i=0;i<t;i++){const r=rows[i];fl.push([i,-r.py]);let o=r.surv+(i<t-1?r.cash:0);if(o)fl.push([i+1,o]);}
+  fl.push([t,rows[t-1].X+(rows[t-1].cash?0:0)]);
+  const npv=x=>fl.reduce((s,[n,v])=>s+v/Math.pow(1+x,n),0);let lo=-0.99,hi=1;if(npv(lo)*npv(hi)>0)return null;
+  for(let i=0;i<100;i++){const m=(lo+hi)/2;(npv(m)>0)?lo=m:hi=m;}return (lo+hi)/2;}
+};
+
+const LIST=[{"code": "FAK1", "name": "富邦人壽美滿世代外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 74]}, "hnw": false, "page": "FAK1.html"}, {"code": "FAT", "name": "富邦人壽美滿鑽外幣利率變動型增額終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 86]}, "hnw": false, "page": "FAT.html"}, {"code": "FAX", "name": "富邦人壽智富美家外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 74], "2": [0, 73]}, "hnw": false, "page": "FAX.html"}, {"code": "FAZ", "name": "富邦人壽美利大心外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 74], "8": [0, 72]}, "hnw": false, "page": "FAZ.html"}, {"code": "FBM", "name": "富邦人壽順順美利外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 74], "10": [0, 70], "20": [0, 60]}, "hnw": false, "page": "FBM.html"}, {"code": "FBN", "name": "富邦人壽澳運傳富外幣利率變動型終身壽險", "cur": "AUD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 74], "2": [0, 73]}, "hnw": false, "page": "FBN.html"}, {"code": "FBP", "name": "富邦人壽美好利外幣利率變動型增額終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 74], "10": [0, 70], "20": [0, 60]}, "hnw": false, "page": "FBP.html"}, {"code": "FBQ", "name": "富邦人壽傳富美滿外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"3": [18, 77]}, "hnw": false, "page": "FBQ.html"}, {"code": "FBS", "name": "富邦人壽富美鴻運外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 80], "2": [0, 78]}, "hnw": true, "page": "FBS.html"}, {"code": "FBU", "name": "富邦人壽富美鴻旺外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 85]}, "hnw": true, "page": "FBU.html"}, {"code": "FBX", "name": "富邦人壽美盈鴻旺外幣利率變動型終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 85], "2": [0, 82]}, "hnw": false, "page": "FBX.html"}, {"code": "FCEA", "name": "富邦人壽美年樂活外幣終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 74]}, "hnw": false, "page": "FCEA.html"}, {"code": "FCEB", "name": "富邦人壽美年樂活外幣終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 58]}, "hnw": false, "page": "FCEB.html"}, {"code": "FCF", "name": "富邦人壽金盈美滿外幣增額終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "固定利率", "terms": {"1": [0, 80]}, "hnw": false, "page": "FCF.html"}, {"code": "FCG", "name": "富邦人壽金好美滿外幣終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"2": [0, 85]}, "hnw": false, "page": "FCG.html"}, {"code": "FEF", "name": "富邦人壽美富豐盈外幣保險", "cur": "USD", "type": "養老", "payout": "生存金", "div": "固定利率", "terms": {"2": [0, 85]}, "hnw": false, "page": "FEF.html"}, {"code": "FEG", "name": "富邦人壽美富豐盛外幣保險", "cur": "USD", "type": "養老", "payout": "累積型", "div": "固定利率", "terms": {"1": [0, 90]}, "hnw": false, "page": "FEG.html"}, {"code": "FPB", "name": "富邦人壽恆美富足外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 85]}, "hnw": false, "page": "FPB.html"}, {"code": "FPC", "name": "富邦人壽尊榮傳世外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 80], "2": [0, 78]}, "hnw": true, "page": "FPC.html"}, {"code": "IAP", "name": "富邦人壽吉鑽利利率變動型還本終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "利變", "terms": {"6": [0, 75]}, "hnw": false, "page": "IAP.html"}, {"code": "IAT2", "name": "富邦人壽新吉好利利率變動型增額終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 75], "10": [0, 70], "20": [0, 60]}, "hnw": false, "page": "IAT2.html"}, {"code": "IBC", "name": "富邦人壽珍給利利率變動型增額終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"2": [0, 78]}, "hnw": false, "page": "IBC.html"}, {"code": "IBN1", "name": "富邦人壽富享世代利率變動型終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [0, 74]}, "hnw": false, "page": "IBN1.html"}, {"code": "IBP", "name": "富邦人壽吉利好運利率變動型增額終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"7": [0, 73]}, "hnw": false, "page": "IBP.html"}, {"code": "IBS", "name": "富邦人壽富貴樂齡利率變動型終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"7": [50, 73]}, "hnw": false, "page": "IBS.html"}, {"code": "IBV", "name": "富邦人壽溢起樂血利率變動型終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"6": [18, 74]}, "hnw": false, "page": "IBV.html"}, {"code": "IBZ", "name": "富邦人壽富利傳家利率變動型終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 70], "2": [0, 70]}, "hnw": false, "page": "IBZ.html"}, {"code": "ICD", "name": "富邦人壽豐盛年年利率變動型終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "利變", "terms": {"2": [0, 78]}, "hnw": false, "page": "ICD.html"}, {"code": "ICH", "name": "富邦人壽富好鑽利率變動型增額終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "利變", "terms": {"1": [0, 86]}, "hnw": false, "page": "ICH.html"}, {"code": "ICI", "name": "富邦人壽豐鑽年年利率變動型終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "利變", "terms": {"3": [0, 77]}, "hnw": false, "page": "ICI.html"}, {"code": "ICK", "name": "富邦人壽豐順年年利率變動型終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "利變", "terms": {"2": [0, 78]}, "hnw": false, "page": "ICK.html"}, {"code": "PAC", "name": "富邦人壽紅旺年年分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 70]}, "hnw": false, "page": "PAC.html"}, {"code": "PAE", "name": "富邦人壽紅運年代分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"10": [0, 65], "20": [0, 55]}, "hnw": false, "page": "PAE.html"}, {"code": "PAF", "name": "富邦人壽紅運長樂增額分紅終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"6": [0, 75], "10": [0, 70], "20": [0, 60]}, "hnw": false, "page": "PAF.html"}, {"code": "PAG", "name": "富邦人壽紅運多多分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 70]}, "hnw": false, "page": "PAG.html"}, {"code": "PAI", "name": "富邦人壽鴻運久久分紅終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"6": [0, 64], "10": [0, 60], "20": [0, 50]}, "hnw": false, "page": "PAI.html"}, {"code": "PAJ", "name": "富邦人壽優富年年分紅養老保險", "cur": "TWD", "type": "養老", "payout": "生存金", "div": "分紅", "terms": {"55": [0, 49], "60": [0, 54], "65": [0, 59]}, "hnw": false, "page": "PAJ.html"}, {"code": "PAK", "name": "富邦人壽月月紅富分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 70]}, "hnw": false, "page": "PAK.html"}, {"code": "PALA", "name": "富邦人壽活利優退分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 49], "6": [0, 49]}, "hnw": false, "page": "PALA.html"}, {"code": "PALB", "name": "富邦人壽活利優退分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 54], "6": [0, 54]}, "hnw": false, "page": "PALB.html"}, {"code": "PALC", "name": "富邦人壽活利優退分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 59], "6": [0, 59]}, "hnw": false, "page": "PALC.html"}, {"code": "PAN", "name": "富邦人壽享滿富分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 70], "10": [0, 65], "20": [0, 55]}, "hnw": false, "page": "PAN.html"}, {"code": "PAO", "name": "富邦人壽富裕長紅增額分紅終身壽險", "cur": "TWD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 75]}, "hnw": false, "page": "PAO.html"}, {"code": "PAP", "name": "富邦人壽紅富年年分紅終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 80]}, "hnw": false, "page": "PAP.html"}, {"code": "PF55", "name": "富邦人壽美富優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 49], "6": [0, 49]}, "hnw": false, "page": "PF55.html"}, {"code": "PF60", "name": "富邦人壽美富優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 54], "6": [0, 54]}, "hnw": false, "page": "PF60.html"}, {"code": "PF65", "name": "富邦人壽美富優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 59], "6": [0, 59]}, "hnw": false, "page": "PF65.html"}, {"code": "PFC", "name": "富邦人壽美年紅旺外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"3": [0, 70], "6": [0, 70]}, "hnw": false, "page": "PFC.html"}, {"code": "PFD", "name": "富邦人壽紅富美好外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"10": [0, 69], "20": [0, 60]}, "hnw": false, "page": "PFD.html"}, {"code": "PFE", "name": "富邦人壽雙美紅運外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 70]}, "hnw": false, "page": "PFE.html"}, {"code": "PFF", "name": "富邦人壽福星雙盈外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 70]}, "hnw": false, "page": "PFF.html"}, {"code": "PFG", "name": "富邦人壽星美富足外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 70], "2": [0, 70]}, "hnw": false, "page": "PFG.html"}, {"code": "PFH", "name": "富邦人壽美紅大吉外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"7": [0, 70]}, "hnw": false, "page": "PFH.html"}, {"code": "PFI", "name": "富邦人壽紅運滿滿外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"10": [0, 65], "20": [0, 55]}, "hnw": false, "page": "PFI.html"}, {"code": "PFNA", "name": "富邦人壽紅運優外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"10": [0, 45], "20": [0, 35]}, "hnw": false, "page": "PFNA.html"}, {"code": "PFNB", "name": "富邦人壽紅運優外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"10": [0, 50], "20": [0, 40]}, "hnw": false, "page": "PFNB.html"}, {"code": "PFNC", "name": "富邦人壽紅運優外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"10": [0, 55], "20": [0, 45]}, "hnw": false, "page": "PFNC.html"}, {"code": "PFO", "name": "富邦人壽美滿富外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 70], "10": [0, 65], "20": [0, 55]}, "hnw": false, "page": "PFO.html"}, {"code": "PFP", "name": "富邦人壽尊榮紅富外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 80], "2": [0, 78]}, "hnw": true, "page": "PFP.html"}, {"code": "PFT", "name": "富邦人壽雙盈人生外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"10": [0, 60]}, "hnw": false, "page": "PFT.html"}, {"code": "PFU", "name": "富邦人壽美滿長紅外幣分紅終身壽險", "cur": "USD", "type": "壽險", "payout": "累積型", "div": "分紅", "terms": {"1": [0, 85], "2": [0, 80]}, "hnw": false, "page": "PFU.html"}, {"code": "PFVA", "name": "富邦人壽美年加鑫外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 16], "6": [0, 12]}, "hnw": false, "page": "PFVA.html"}, {"code": "PFVB", "name": "富邦人壽美年加鑫外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 23], "6": [0, 19]}, "hnw": false, "page": "PFVB.html"}, {"code": "PFVC", "name": "富邦人壽美年加鑫外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 28], "6": [0, 24]}, "hnw": false, "page": "PFVC.html"}, {"code": "PFVD", "name": "富邦人壽美年加鑫外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"2": [0, 33], "6": [0, 29]}, "hnw": false, "page": "PFVD.html"}, {"code": "PFWA", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 44]}, "hnw": false, "page": "PFWA.html"}, {"code": "PFWB", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 49]}, "hnw": false, "page": "PFWB.html"}, {"code": "PFWC", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 54]}, "hnw": false, "page": "PFWC.html"}, {"code": "PFWD", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 59]}, "hnw": false, "page": "PFWD.html"}, {"code": "PFWE", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 64]}, "hnw": false, "page": "PFWE.html"}, {"code": "PFWF", "name": "富邦人壽美好優退外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 69]}, "hnw": false, "page": "PFWF.html"}, {"code": "PFZA", "name": "富邦人壽美滿豐年外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 34]}, "hnw": false, "page": "PFZA.html"}, {"code": "PFZB", "name": "富邦人壽美滿豐年外幣分紅終身保險", "cur": "USD", "type": "壽險", "payout": "生存金", "div": "分紅", "terms": {"6": [0, 39]}, "hnw": false, "page": "PFZB.html"}, {"code": "XML1", "name": "富邦人壽新豐吉年年終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 75]}, "hnw": false, "page": "XML1.html"}, {"code": "XMM", "name": "富邦人壽富豐年終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 70]}, "hnw": false, "page": "XMM.html"}, {"code": "XMNA", "name": "富邦人壽樂活年年終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 74]}, "hnw": false, "page": "XMNA.html"}, {"code": "XMNB", "name": "富邦人壽樂活年年終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"6": [0, 58]}, "hnw": false, "page": "XMNB.html"}, {"code": "XMP", "name": "富邦人壽慶豐盈終身保險", "cur": "TWD", "type": "壽險", "payout": "生存金", "div": "固定利率", "terms": {"2": [0, 85]}, "hnw": false, "page": "XMP.html"}];
+const COL=['#0b5fa5','#e67e22','#1e8449'],$=id=>document.getElementById(id),CACHE={};
+const TY={'壽險':1,'養老':2,'年金':3};
+const sorted=LIST.slice().sort((a,b)=>(a.cur=='USD'?0:1)-(b.cur=='USD'?0:1)||(TY[a.type]||9)-(TY[b.type]||9)||a.payout.localeCompare(b.payout)||a.code.localeCompare(b.code));
+const groups={};sorted.forEach(p=>{const k=`${p.cur=='USD'?'美元':p.cur=='TWD'?'台幣':p.cur}｜${p.type}｜${p.payout}`;(groups[k]=groups[k]||[]).push(p);});
+const OPTS='<option value="">（不選）</option>'+Object.entries(groups).map(([k,v])=>`<optgroup label="${k}">`+v.map(p=>`<option value="${p.code}">${p.code} ${p.name.replace('富邦人壽','')}${p.hnw?'（高資產）':''}</option>`).join('')+'</optgroup>').join('');
+const BY=Object.fromEntries(LIST.map(p=>[p.code,p]));
+$('slots').innerHTML=[0,1,2].map(i=>`<div class="slot"><span class="dot" style="background:${COL[i]}">${'ABC'[i]}</span><select id="p${i}">${OPTS}</select><select id="t${i}"></select></div>`).join('');
+function termLab(p,k){return k==1?'躉繳':(p.code.startsWith('PAJ')?'繳至'+k+'歲':k+'年期');}
+function fillTerm(i,want){const c=$('p'+i).value,s=$('t'+i);if(!c){s.innerHTML='';return;}const p=BY[c];s.innerHTML=Object.keys(p.terms).map(k=>`<option value="${k}">${termLab(p,k)}</option>`).join('');if(want&&p.terms[want])s.value=want;}
+let CUR='USD';
+// URL
+const U=new URLSearchParams(location.search);
+['g','age','mode','amt','fx'].forEach(k=>{if(U.get(k)!=null)$(k).value=U.get(k);});
+if(U.get('cur')=='TWD')CUR='TWD';if(U.get('kv')=='0')$('kv').checked=false;
+const PS=(U.get('p')||'PFWA:6,PF55:6').split(',').filter(Boolean);
+[0,1,2].forEach(i=>{const [c,t]=(PS[i]||'').split(':');if(c&&BY[c]){$('p'+i).value=c;fillTerm(i,t);}});
+function syncUrl(){const q=new URLSearchParams();q.set('g',$('g').value);q.set('age',$('age').value);q.set('mode',$('mode').value);q.set('amt',$('amt').value);if(CUR=='TWD')q.set('cur','TWD');if($('fx').value!='31')q.set('fx',$('fx').value);if(!$('kv').checked)q.set('kv','0');
+ q.set('p',[0,1,2].map(i=>$('p'+i).value?$('p'+i).value+':'+$('t'+i).value:'').filter(Boolean).join(','));history.replaceState(null,'','?'+q.toString());}
+async function load(c){if(!CACHE[c])CACHE[c]=fetch('cmp/'+c+'.json').then(r=>r.json());return CACHE[c];}
+const fmt=n=>n==null||!isFinite(n)?'':Math.round(n).toLocaleString('en-US'),pc=x=>x==null||!isFinite(x)?'':(x*100).toFixed(1)+'%',ip=x=>x==null||!isFinite(x)||x<0?'':(x*100).toFixed(2)+'%';
+function calc(P,term,g,age,mode,amt,fx){
+ const M=P.meta,D=P.data,k=CUR==M.cur?1:(CUR=='TWD'?fx:1/fx);if(M.cur!='USD'&&M.cur!='TWD')return {err:'幣別不支援比較'};
+ const [a0,a1]=M.terms[term];if(!(age>=a0&&age<=a1))return {err:`投保年齡限 ${a0}~${a1} 歲`};
+ const key=ENG.key(M,g,age,term);ENG._D=D;const rate=D.GP[key];if(!rate)return {err:'此年齡／年期無費率'};
+ const payN=M.payYears=='term'?term:term-age;let S;
+ if(mode=='P')S=Math.floor(amt/k/payN/rate*10)/10;else S=Math.round(amt/k*10)/10;
+ const ft=M.faceTable&&M.faceTable[term],smin=(ft&&ft[1])||M.smin;let smax=(ft&&ft[2])||M.smax;if(M.maxf&&M.maxf[age]!=null)smax=Math.min(smax,M.maxf[age]);
+ const CN=M.cur=='USD'?'萬美元':'萬元';
+ if(!(S>=smin&&S<=smax))return {err:`保額 ${S} ${CN} 不在可投保範圍 ${smin}~${smax} ${CN}`+(mode=='P'?'，請調整總繳保費':'')};
+ const pr=ENG.prem(M,D,g,age,term,S,'匯款','金融機構轉帳');if(!pr)return {err:'無法計算保費'};
+ const ms=ENG.modes(M,D,key),cs=M.isr?'PC':'CASH',dm=M.srv?(ms.includes(cs)?cs:'PUA'):'PUA',mm=ms.includes(dm)?dm:ms[0];
+ const hasB=!!(D.BONU&&Object.keys(D.BONU).length),sc=M.isr?M.declDef:(hasB?2:0);
+ const q=ENG.quote(M,D,g,age,term,S,sc,mm,pr.p1,pr.p2);let rc=0,pcash=0;
+ const rows=q.rows.map((r,i)=>{rc+=r.surv;const val=r.X+rc+pcash;pcash+=r.cash;return {t:r.t,age:r.age,cum:r.cum*k,W:r.W*k,X:r.X*k,recv:(rc+pcash)*k,val:val*k,rt:r.cum?val/r.cum:null,lv:r.cum?r.W/r.cum:null,surv:r.surv*k};});
+ const MN={PUA:'增額繳清',SAVE:'儲存生息',CASH:'現金給付',PS:'儲存生息',PC:'現金給付'};
+ return {M,S,CN,term,payN,p1:pr.p1*k,p2:pr.p2*k,tot:rows[Math.min(payN,rows.length)-1].cum,rows,qr:q.rows,
+  sc:M.isr?`宣告 ${(M.declDef*100).toFixed(2)}%`:(hasB?'中分紅':'保證給付'),dm:(hasB||M.isr)?MN[q.mode]:'—'};}
+async function run(){
+ syncUrl();const g=+$('g').value,age=+$('age').value,mode=$('mode').value,amt=+$('amt').value,fx=+$('fx').value||0;$('msg').innerHTML='';
+ $('amtL').textContent=mode=='P'?`總繳保費（${CUR=='USD'?'美元':'台幣'}）`:`保額（萬${CUR=='USD'?'美元':'元'}）`;
+ if(!(fx>0)){$('msg').textContent='請輸入匯率';return;}if(!(amt>0)){$('msg').textContent='請輸入金額';return;}
+ const sel=[0,1,2].map(i=>({i,c:$('p'+i).value,t:+$('t'+i).value})).filter(x=>x.c);
+ if(sel.length<2){$('msg').textContent='請至少選 2 張商品';$('sum').innerHTML=$('yt').innerHTML=$('chart').innerHTML='';return;}
+ const R=[],W=[];for(const s of sel){const P=await load(s.c);const r=calc(P,s.t,g,age,mode,amt,fx);r.i=s.i;r.code=s.c;if(r.err)W.push(`<b style="color:${COL[s.i]}">${'ABC'[s.i]} ${s.c}</b>：${r.err}`);else R.push(r);}
+ $('msg').innerHTML=W.join('<br>');drawSum(R);drawChart(R);drawYT(R);}
+function first(rows,f){const r=rows.find(f);return r||null;}
+function drawSum(R){if(!R.length){$('sum').innerHTML='';return;}
+ const KY=[10,20,30],u=CUR=='USD'?'US$':'NT$';
+ const h=(lab,f,best)=>{const v=R.map(f);let b=-1;if(best){const n=R.map(best);const m=best.min?Math.min(...n.filter(x=>x!=null)):Math.max(...n.filter(x=>x!=null));b=n.findIndex(x=>x===m);if(R.length<2)b=-1;}
+   return `<tr><td>${lab}</td>${v.map((x,i)=>`<td${i==b?' class="best"':''}>${x}</td>`).join('')}</tr>`;};
+ const by=(r,t)=>r.rows[t-1];let s=`<tr><th>項目</th>${R.map(r=>`<th style="color:${COL[r.i]}">${'ABC'[r.i]} <a href="${BY[r.code].page}" style="color:inherit">${r.code}</a><br><small>${termLab(BY[r.code],r.term)}</small></th>`).join('')}</tr>`;
+ s+=h('保額',r=>r.S+' '+r.CN);s+=h('年繳保費（折扣後）',r=>u+fmt(r.p2)+(r.p1!=r.p2?`<br><small>首年 ${fmt(r.p1)}</small>`:''));s+=h('總繳保費',r=>u+fmt(r.tot));
+ s+=h('紅利／給付方式',r=>r.sc+(r.dm!='—'?'｜'+r.dm:''));
+ const sv=r=>first(r.rows,x=>x.surv>0);s+=h('第一次還本',r=>{const x=sv(r);return x?`<b>第 ${x.t} 年</b>（${x.age} 歲）<br><small>${u}${fmt(x.surv)}</small>`:'無生存金';},r=>{const x=sv(r);return x?x.t:null}).replace('<tr>','<tr>');
+ // min is best for years
+ const be=r=>first(r.rows,x=>x.cum>0&&x.val>=x.cum-0.5);s+=h('回本年度',r=>{const x=be(r);return x?`<b>第 ${x.t} 年</b>（${x.age} 歲）`:'—';},Object.assign(r=>{const x=be(r);return x?x.t:null},{min:1}));
+ KY.forEach(t=>{s+=h(`第 ${t} 年領回率`,r=>by(r,t)?`<span class="g">${pc(by(r,t).rt)}</span>`:'',r=>by(r,t)?by(r,t).rt:null);});
+ KY.forEach(t=>{s+=h(`第 ${t} 年含紅利總報酬`,r=>by(r,t)?pc(by(r,t).rt-1):'');});
+ KY.forEach(t=>{s+=h(`第 ${t} 年 IRR`,r=>by(r,t)?ip(ENG.irr(r.qr,t)):'',r=>by(r,t)?ENG.irr(r.qr,t):null);});
+ KY.forEach(t=>{s+=h(`第 ${t} 年身故保障`,r=>by(r,t)?`<span class="d">${u}${fmt(by(r,t).W)}</span>`:'');});
+ s+=h('第 1 年壽險倍數',r=>`<span class="lv">${r.rows[0].lv.toFixed(2)} 倍</span>`);
+ s+=h('最高壽險倍數',r=>{const m=r.rows.reduce((a,x)=>x.lv>a.lv?x:a);return `<span class="lv">${m.lv.toFixed(2)} 倍</span><br><small>第 ${m.t} 年</small>`;},r=>Math.max(...r.rows.map(x=>x.lv)));
+ // fix: 第一次還本 earliest is best
+ $('sum').innerHTML=s;
+ const tr=$('sum').rows[5];if(tr){const n=R.map(r=>{const x=sv(r);return x?x.t:1e9});const m=Math.min(...n);[...tr.cells].slice(1).forEach((c,i)=>c.classList.toggle('best',n[i]==m&&m<1e9&&n.filter(v=>v==m).length<R.length));}}
+function drawChart(R){if(!R.length){$('chart').innerHTML='';return;}
+ const Y=Math.min(60,Math.max(...R.map(r=>r.rows.length))),W=360,H=220,L=40,B=24,pts=R.map(r=>r.rows.slice(0,Y).map(x=>x.rt||0));
+ const mx=Math.max(1.2,...pts.flat()),x=t=>L+(W-L-8)*(t-1)/(Y-1),y=v=>H-B-(H-B-10)*v/mx;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:700px">`;
+ for(let v=0;v<=mx;v+=mx>4?1:0.5)s+=`<line x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="${v==1?'#c0392b':'#e3e6ec'}" ${v==1?'stroke-dasharray="4 3"':''}/><text x="${L-4}" y="${y(v)+4}" font-size="10" text-anchor="end" fill="#666">${Math.round(v*100)}%</text>`;
+ for(let t=10;t<=Y;t+=10)s+=`<text x="${x(t)}" y="${H-8}" font-size="10" text-anchor="middle" fill="#666">${t}年</text>`;
+ R.forEach((r,j)=>{s+=`<polyline fill="none" stroke="${COL[r.i]}" stroke-width="2" points="${pts[j].map((v,i)=>x(i+1).toFixed(1)+','+y(v).toFixed(1)).join(' ')}"/>`;});
+ s+='</svg><div style="font-size:13px">'+R.map(r=>`<span style="color:${COL[r.i]};font-weight:700">━ ${r.code}</span>`).join('　')+'</div>';$('chart').innerHTML=s;}
+function drawYT(R){if(!R.length){$('yt').innerHTML='';return;}
+ const n=Math.max(...R.map(r=>r.rows.length)),age=+$('age').value,kv=$('kv').checked;
+ const C=[['cum','累計保費'],['surv','生存金'],['val','解約總額<br><small>＋累計領回</small>'],['rt','領回率'],['W','身故保障'],['lv','壽險倍數']];
+ const cols=R.map(r=>C.filter(([f])=>r.rows.some(x=>x[f])));
+ let s=`<thead><tr><th rowspan="2">年度<br><small>(年齡)</small></th>${R.map((r,j)=>`<th colspan="${cols[j].length}" style="color:${COL[r.i]}">${'ABC'[r.i]} ${r.code}</th>`).join('')}</tr><tr>${cols.map(c=>c.map(x=>`<th>${x[1]}</th>`).join('')).join('')}</tr></thead><tbody>`;
+ const ks=new Set([1,2,3,5,6,10,15,20,25,30,35,40,50,60]);R.forEach(r=>{r.rows.forEach(x=>{if([55,60,65,70,75,80].includes(x.age))ks.add(x.t);});const v=first(r.rows,x=>x.surv>0);if(v)ks.add(v.t);const b=first(r.rows,x=>x.cum>0&&x.val>=x.cum-0.5);if(b)ks.add(b.t);ks.add(r.payN);});
+ for(let t=1;t<=n;t++){if(kv&&!ks.has(t))continue;s+=`<tr><td>${t}<br><small>(${age+t-1})</small></td>`;
+  R.forEach((r,j)=>{const x=r.rows[t-1];cols[j].forEach(([f])=>{if(!x){s+='<td></td>';return;}const v=x[f];
+   s+=f=='rt'?`<td class="g">${pc(v)}</td>`:f=='lv'?`<td class="lv">${v?v.toFixed(2):''}</td>`:f=='W'?`<td class="d">${fmt(v)}</td>`:`<td>${fmt(v)}</td>`;});});s+='</tr>';}
+ $('yt').innerHTML=s+'</tbody>';}
+[0,1,2].forEach(i=>{$('p'+i).addEventListener('change',()=>{fillTerm(i,$('t'+i).value);run();});$('t'+i).addEventListener('change',run);});
+['g','age','amt','fx'].forEach(k=>$(k).addEventListener('change',run));$('kv').addEventListener('change',run);
+$('mode').addEventListener('change',()=>{});
+function setCur(c){if(c==CUR)return;const fx=+$('fx').value||31,a=+$('amt').value;$('amt').value=$('mode').value=='P'?Math.round(c=='TWD'?a*fx:a/fx):Math.round((c=='TWD'?a*fx:a/fx)*10)/10;CUR=c;$('bU').classList.toggle('on',c=='USD');$('bT').classList.toggle('on',c=='TWD');run();}
+$('bU').onclick=()=>setCur('USD');$('bT').onclick=()=>setCur('TWD');
+$('bU').classList.toggle('on',CUR=='USD');$('bT').classList.toggle('on',CUR=='TWD');
+$('mode').addEventListener('change',()=>{const m=$('mode').value;$('amt').value=m=='P'?(CUR=='USD'?100000:3000000):(CUR=='USD'?10:300);run();});
+run();
+</script><script>/*SWREG*/(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+navigator.serviceWorker.register('sw.js').catch(function(){});
+navigator.serviceWorker.addEventListener('message',function(ev){if(!ev.data||ev.data.type!=='qt-updated'||document.getElementById('qtupd'))return;
+var b=document.createElement('div');b.id='qtupd';b.textContent='🔄 網站資料已更新，點此重新整理以顯示最新數字';
+b.style.cssText='position:fixed;left:8px;right:8px;bottom:12px;z-index:9999;background:#c0392b;color:#fff;padding:12px 14px;border-radius:12px;font-size:15px;font-weight:bold;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer';
+b.onclick=function(){location.reload();};document.body.appendChild(b);});})();</script><!--CFWA--><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1f1171fedb8a47c1b04731b056bc8142"}'></script><!--/CFWA--></body></html>
