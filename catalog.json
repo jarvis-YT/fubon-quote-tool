@@ -237,6 +237,32 @@
   "kind": "quote"
  },
  {
+  "code": "FBV",
+  "name": "富邦人壽美裕富足外幣利率變動型終身壽險",
+  "ver": "V1.0-1151023",
+  "cur": "USD",
+  "type": "壽險",
+  "terms": {
+   "1": [
+    0,
+    88
+   ]
+  },
+  "payYears": "term",
+  "payout": "累積型",
+  "dividend": "利變",
+  "rate": "4.35%（115/10）",
+  "oiu": false,
+  "srvAge": null,
+  "srvYear": null,
+  "srvT": {},
+  "page": "FBV.html",
+  "verified": "保費✓ 增值回饋分享金✓(建議書+LibreOffice重算6情境逐年相符)",
+  "hnw": false,
+  "src": "fbv.json",
+  "kind": "quote"
+ },
+ {
   "code": "PFP",
   "name": "富邦人壽尊榮紅富外幣分紅終身壽險",
   "ver": "V1.5-1150630",
