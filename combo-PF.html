@@ -127,7 +127,7 @@ $('m1').innerHTML=Object.keys(M0.js_meth).map(x=>`<option>${x}</option>`).join('
 const MN={PUA:'購買增額繳清保險金額',SAVE:'儲存生息',CASH:'現金給付'};
 if(ISR){Object.assign(MN,{PS:'儲存生息（前期增額繳清）',PC:'現金給付（前期增額繳清）',PUA:'全期購買增額繳清'});const d=M0.declDef,a=M0.assumed;
  $('scL').textContent='宣告利率情境';$('dmL').textContent='增值回饋分享金';
- $('sc').innerHTML=[[d,`宣告 ${(d*100).toFixed(2)}%（${M0.declLab}）`],[Math.max(a,d-0.01),`宣告−1%：${(Math.max(a,d-0.01)*100).toFixed(2)}%`],[a,'保證（不含回饋金）']].map(([v,l])=>`<option value="${v}">${l}</option>`).join('')+'<option value="c">自訂宣告利率…</option>';
+ $('sc').innerHTML=[[d,`宣告 ${(d*100).toFixed(2)}%（${M0.declLab}）`]].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
  $('dc').value=(d*100).toFixed(2);$('sc').addEventListener('change',()=>{$('dc').style.display=$('sc').value=='c'?'':'none';});C.codes.forEach(c=>DS[c].meta.eff=null);}
 else{$('scL').textContent='紅利情境';$('dmL').textContent='年度保單紅利';$('sc').innerHTML='<option value="2">最可能紅利(中)</option><option value="1">較低紅利</option><option value="0">保證(不含紅利)</option>';}
 const TN=(M,t)=>t==1?'躉繳':(M.payYears=='age'?'繳至'+t+'歲':t+'年期'),U=CUR=='TWD'?'萬元':'萬美元';

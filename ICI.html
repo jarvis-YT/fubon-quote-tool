@@ -140,8 +140,8 @@ $('term').innerHTML=Object.keys(M.terms).map(k=>`<option value="${k}">${k==1?'�
 $('m1').innerHTML=Object.keys(M.js_meth).map(x=>`<option>${x}</option>`).join('');$('m2').innerHTML=Object.keys(M.js_meth).filter(x=>!x.includes('匯款')).map(x=>`<option>${x}</option>`).join('');
 $('m2').value='金融機構轉帳';
 const MN={PUA:'購買增額繳清保險金額',SAVE:'儲存生息',CASH:'現金給付'};
-if(M.isr){Object.assign(MN,{PS:'儲存生息（前期增額繳清）',PC:'現金給付（前期增額繳清）',PUA:'全期購買增額繳清'});const d=M.declDef,a=M.assumed,o=[[d,`宣告 ${(d*100).toFixed(2)}%（${M.declLab}）`],[Math.max(a,d-0.01),`宣告−1%：${(Math.max(a,d-0.01)*100).toFixed(2)}%`],[a,'保證（不含回饋金）']];
- $('sc').innerHTML=o.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')+'<option value="c">自訂宣告利率…</option>';
+if(M.isr){Object.assign(MN,{PS:'儲存生息（前期增額繳清）',PC:'現金給付（前期增額繳清）',PUA:'全期購買增額繳清'});const d=M.declDef,a=M.assumed,o=[[d,`宣告 ${(d*100).toFixed(2)}%（${M.declLab}）`]];/* 依公司建議書：只用宣告利率，不提供−1%／保證／自訂 */
+ $('sc').innerHTML=o.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
  const ci=document.createElement('input');ci.id='dc';ci.type='number';ci.step='0.01';ci.value=(d*100).toFixed(2);ci.style.display='none';ci.title='自訂宣告利率(%)';$('sc').after(ci);
  $('sc').addEventListener('change',()=>{ci.style.display=$('sc').value=='c'?'':'none';});M.eff=null;}
 function setModes(){const g=+$('g').value,age=+$('age').value,term=+$('term').value,k=ENG.key(M,g,age,term);const ms=D.GP[k]?ENG.modes(M,D,k):['SAVE','CASH'];const cur=$('dm').value;
